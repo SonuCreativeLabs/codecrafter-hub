@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileUpload, FileDownload } from "lucide-react";
+import { Upload, Download } from "lucide-react";
 
 export const DataImportExport = () => {
   const [isUploading, setIsUploading] = useState(false);
@@ -45,7 +45,7 @@ export const DataImportExport = () => {
               htmlFor="file-upload"
               className="cursor-pointer inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2"
             >
-              <FileUpload className="mr-2 h-4 w-4" />
+              <Upload className="mr-2 h-4 w-4" />
               {isUploading ? "Uploading..." : "Upload File"}
             </label>
           </div>
@@ -57,7 +57,7 @@ export const DataImportExport = () => {
             Download your data in Excel format for backup or analysis.
           </p>
           <Button onClick={handleExport}>
-            <FileDownload className="mr-2 h-4 w-4" />
+            <Download className="mr-2 h-4 w-4" />
             Export to Excel
           </Button>
         </div>
