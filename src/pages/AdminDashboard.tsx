@@ -1,6 +1,14 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { PlusCircle, Users, Tag, TrendingUp } from "lucide-react";
 import { AdminNav } from "@/components/AdminNav";
 import { PromoCodeGenerator } from "@/components/PromoCodeGenerator";
@@ -24,33 +32,33 @@ const AdminDashboard = () => {
         return <AdminReports />;
       default:
         return (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <Card className="p-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <Card className="p-6">
               <div className="flex items-center space-x-4">
-                <Tag className="h-8 w-8 text-primary" />
+                <Tag className="h-10 w-10 text-primary" />
                 <div>
                   <p className="text-sm text-muted-foreground">Total Promo Codes</p>
-                  <h3 className="text-xl font-bold">156</h3>
+                  <h3 className="text-2xl font-bold">156</h3>
                 </div>
               </div>
             </Card>
 
-            <Card className="p-4">
+            <Card className="p-6">
               <div className="flex items-center space-x-4">
-                <Users className="h-8 w-8 text-primary" />
+                <Users className="h-10 w-10 text-primary" />
                 <div>
                   <p className="text-sm text-muted-foreground">Active Agents</p>
-                  <h3 className="text-xl font-bold">{agents.length}</h3>
+                  <h3 className="text-2xl font-bold">{agents.length}</h3>
                 </div>
               </div>
             </Card>
 
-            <Card className="p-4">
+            <Card className="p-6">
               <div className="flex items-center space-x-4">
-                <TrendingUp className="h-8 w-8 text-primary" />
+                <TrendingUp className="h-10 w-10 text-primary" />
                 <div>
                   <p className="text-sm text-muted-foreground">Total Redemptions</p>
-                  <h3 className="text-xl font-bold">77</h3>
+                  <h3 className="text-2xl font-bold">77</h3>
                 </div>
               </div>
             </Card>
@@ -61,14 +69,14 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="flex flex-col lg:flex-row">
+      <div className="flex">
         <AdminNav currentView={currentView} setCurrentView={setCurrentView} />
-        <main className="flex-1 p-4 lg:p-6 mt-16 lg:mt-0">
+        <main className="flex-1 p-6">
           <div className="max-w-7xl mx-auto space-y-6">
-            <div className="flex justify-between items-center flex-wrap gap-4">
-              <h1 className="text-2xl font-bold">{currentView.charAt(0).toUpperCase() + currentView.slice(1)}</h1>
+            <div className="flex justify-between items-center">
+              <h1 className="text-2xl font-bold">Admin Dashboard</h1>
               {currentView === "agents" && (
-                <Button size="sm">
+                <Button>
                   <PlusCircle className="mr-2 h-4 w-4" />
                   Add Agent
                 </Button>
