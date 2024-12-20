@@ -5,25 +5,90 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
+import { auth } from "@/lib/firebase";
+import { signInWithEmailAndPassword, signInWithPhoneNumber, RecaptchaVerifier } from "firebase/auth";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 
 const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
+  const [showOTP, setShowOTP] = useState(false);
+  const [otp, setOTP] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleAdminLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Simulate login - replace with actual authentication
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
       toast({
         title: "Success",
-        description: "Welcome back!",
+        description: "Welcome back, admin!",
       });
       navigate("/admin");
-    }, 1000);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleAgentLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      // Initialize reCAPTCHA verifier
+      const recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+        size: 'invisible',
+      });
+
+      const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, recaptchaVerifier);
+      // Store confirmation result to verify OTP later
+      (window as any).confirmationResult = confirmationResult;
+      setShowOTP(true);
+      toast({
+        title: "OTP Sent",
+        description: "Please enter the OTP sent to your mobile number",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const verifyOTP = async () => {
+    setIsLoading(true);
+    try {
+      const confirmationResult = (window as any).confirmationResult;
+      const result = await confirmationResult.confirm(otp);
+      toast({
+        title: "Success",
+        description: "Welcome back, agent!",
+      });
+      navigate("/agent");
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Invalid OTP. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -42,14 +107,26 @@ const Login = () => {
             </TabsList>
 
             <TabsContent value="admin">
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleAdminLogin} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
-                  <Input id="email" type="email" required />
+                  <Input 
+                    id="email" 
+                    type="email" 
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required 
+                  />
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="password">Password</Label>
-                  <Input id="password" type="password" required />
+                  <Input 
+                    id="password" 
+                    type="password" 
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required 
+                  />
                 </div>
                 <Button type="submit" className="w-full" disabled={isLoading}>
                   {isLoading ? "Signing in..." : "Sign in"}
@@ -58,23 +135,55 @@ const Login = () => {
             </TabsContent>
 
             <TabsContent value="agent">
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="mobile">Mobile Number</Label>
-                  <Input id="mobile" type="tel" required />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="agentPassword">Password</Label>
-                  <Input id="agentPassword" type="password" required />
-                </div>
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? "Signing in..." : "Sign in"}
-                </Button>
+              <form onSubmit={handleAgentLogin} className="space-y-4">
+                {!showOTP ? (
+                  <>
+                    <div className="space-y-2">
+                      <Label htmlFor="mobile">Mobile Number</Label>
+                      <Input 
+                        id="mobile" 
+                        type="tel" 
+                        value={phoneNumber}
+                        onChange={(e) => setPhoneNumber(e.target.value)}
+                        placeholder="+91XXXXXXXXXX"
+                        required 
+                      />
+                    </div>
+                    <Button type="submit" className="w-full" disabled={isLoading}>
+                      {isLoading ? "Sending OTP..." : "Send OTP"}
+                    </Button>
+                  </>
+                ) : (
+                  <div className="space-y-4">
+                    <Label>Enter OTP</Label>
+                    <InputOTP
+                      value={otp}
+                      onChange={(value) => setOTP(value)}
+                      maxLength={6}
+                      render={({ slots }) => (
+                        <InputOTPGroup className="gap-2">
+                          {slots.map((slot, index) => (
+                            <InputOTPSlot key={index} {...slot} />
+                          ))}
+                        </InputOTPGroup>
+                      )}
+                    />
+                    <Button 
+                      type="button" 
+                      className="w-full" 
+                      onClick={verifyOTP}
+                      disabled={isLoading || otp.length !== 6}
+                    >
+                      {isLoading ? "Verifying..." : "Verify OTP"}
+                    </Button>
+                  </div>
+                )}
               </form>
             </TabsContent>
           </Tabs>
         </div>
       </div>
+      <div id="recaptcha-container"></div>
     </div>
   );
 };
