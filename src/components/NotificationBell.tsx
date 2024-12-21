@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
-import { db } from "@/lib/firebase-config";
+import { db } from "@/lib/firebase";
 import { collection, query, where, onSnapshot, updateDoc, doc, Timestamp } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
 
