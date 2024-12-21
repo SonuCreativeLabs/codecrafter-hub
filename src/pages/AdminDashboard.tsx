@@ -1,19 +1,13 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { PlusCircle, Users, Tag, TrendingUp } from "lucide-react";
 import { AdminNav } from "@/components/AdminNav";
 import { PromoCodeGenerator } from "@/components/PromoCodeGenerator";
 import { AgentManagement } from "@/components/AgentManagement";
 import { AdminReports } from "@/components/AdminReports";
+import { AgentLeaderboard } from "@/components/AgentLeaderboard";
+import { NotificationBell } from "@/components/NotificationBell";
 
 const AdminDashboard = () => {
   const [currentView, setCurrentView] = useState("dashboard");
@@ -30,38 +24,43 @@ const AdminDashboard = () => {
         return <AgentManagement />;
       case "reports":
         return <AdminReports />;
+      case "leaderboard":
+        return <AgentLeaderboard />;
       default:
         return (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <Card className="p-6">
-              <div className="flex items-center space-x-4">
-                <Tag className="h-10 w-10 text-primary" />
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Promo Codes</p>
-                  <h3 className="text-2xl font-bold">156</h3>
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card className="p-6">
+                <div className="flex items-center space-x-4">
+                  <Tag className="h-10 w-10 text-primary" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">Total Promo Codes</p>
+                    <h3 className="text-2xl font-bold">156</h3>
+                  </div>
                 </div>
-              </div>
-            </Card>
+              </Card>
 
-            <Card className="p-6">
-              <div className="flex items-center space-x-4">
-                <Users className="h-10 w-10 text-primary" />
-                <div>
-                  <p className="text-sm text-muted-foreground">Active Agents</p>
-                  <h3 className="text-2xl font-bold">{agents.length}</h3>
+              <Card className="p-6">
+                <div className="flex items-center space-x-4">
+                  <Users className="h-10 w-10 text-primary" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">Active Agents</p>
+                    <h3 className="text-2xl font-bold">{agents.length}</h3>
+                  </div>
                 </div>
-              </div>
-            </Card>
+              </Card>
 
-            <Card className="p-6">
-              <div className="flex items-center space-x-4">
-                <TrendingUp className="h-10 w-10 text-primary" />
-                <div>
-                  <p className="text-sm text-muted-foreground">Total Redemptions</p>
-                  <h3 className="text-2xl font-bold">77</h3>
+              <Card className="p-6">
+                <div className="flex items-center space-x-4">
+                  <TrendingUp className="h-10 w-10 text-primary" />
+                  <div>
+                    <p className="text-sm text-muted-foreground">Total Redemptions</p>
+                    <h3 className="text-2xl font-bold">77</h3>
+                  </div>
                 </div>
               </div>
-            </Card>
+            </div>
+            <AgentLeaderboard />
           </div>
         );
     }
@@ -75,12 +74,15 @@ const AdminDashboard = () => {
           <div className="max-w-7xl mx-auto space-y-6">
             <div className="flex justify-between items-center">
               <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-              {currentView === "agents" && (
-                <Button>
-                  <PlusCircle className="mr-2 h-4 w-4" />
-                  Add Agent
-                </Button>
-              )}
+              <div className="flex items-center gap-4">
+                <NotificationBell userId="admin" />
+                {currentView === "agents" && (
+                  <Button>
+                    <PlusCircle className="mr-2 h-4 w-4" />
+                    Add Agent
+                  </Button>
+                )}
+              </div>
             </div>
             {renderContent()}
           </div>

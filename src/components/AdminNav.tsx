@@ -1,4 +1,4 @@
-import { Tag, Users, TrendingUp, LayoutDashboard } from "lucide-react";
+import { Tag, Users, TrendingUp, LayoutDashboard, Trophy } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -23,6 +23,11 @@ export function AdminNav({ currentView, setCurrentView }: AdminNavProps) {
       title: "Agents",
       icon: Users,
       value: "agents",
+    },
+    {
+      title: "Leaderboard",
+      icon: Trophy,
+      value: "leaderboard",
     },
     {
       title: "Reports",
