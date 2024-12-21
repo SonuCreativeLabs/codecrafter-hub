@@ -11,7 +11,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Line } from "react-chartjs-2";
 import { db } from "@/lib/firebase";
-import { collection, query, orderBy, limit, onSnapshot, DocumentData } from "firebase/firestore";
+import { collection, query, orderBy, limit, getDocs, DocumentData } from "firebase/firestore";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -46,35 +46,40 @@ export function AgentLeaderboard() {
   const [chartData, setChartData] = useState<any>(null);
 
   useEffect(() => {
-    const agentsRef = collection(db, "agents");
-    const q = query(agentsRef, orderBy("redemptionsCount", "desc"), limit(10));
-
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const agentsData: Agent[] = [];
-      snapshot.forEach((doc) => {
-        const index = agentsData.length;
-        agentsData.push({
-          id: doc.id,
-          ...doc.data() as Omit<Agent, 'id'>,
-          rank: index + 1
+    const fetchAgents = async () => {
+      try {
+        const agentsRef = collection(db, "agents");
+        const q = query(agentsRef, orderBy("redemptionsCount", "desc"), limit(10));
+        const snapshot = await getDocs(q);
+        
+        const agentsData: Agent[] = [];
+        snapshot.forEach((doc) => {
+          const index = agentsData.length;
+          agentsData.push({
+            id: doc.id,
+            ...doc.data() as Omit<Agent, 'id'>,
+            rank: index + 1
+          });
         });
-      });
-      setAgents(agentsData);
+        
+        setAgents(agentsData);
+        setChartData({
+          labels: agentsData.map(agent => agent.name),
+          datasets: [
+            {
+              label: 'Redemptions',
+              data: agentsData.map(agent => agent.redemptionsCount),
+              borderColor: 'rgb(75, 192, 192)',
+              tension: 0.1
+            }
+          ]
+        });
+      } catch (error) {
+        console.error("Error fetching agents:", error);
+      }
+    };
 
-      setChartData({
-        labels: agentsData.map(agent => agent.name),
-        datasets: [
-          {
-            label: 'Redemptions',
-            data: agentsData.map(agent => agent.redemptionsCount),
-            borderColor: 'rgb(75, 192, 192)',
-            tension: 0.1
-          }
-        ]
-      });
-    });
-
-    return () => unsubscribe();
+    fetchAgents();
   }, [timeRange]);
 
   return (
