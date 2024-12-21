@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { CheckCircle2, PlayCircle, FileText, Download } from "lucide-react";
 import { db } from "@/lib/firebase";
-import { collection, query, getDocs, updateDoc, doc, where, DocumentData } from "firebase/firestore";
+import { collection, query, getDocs, updateDoc, doc, where } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
 
 interface TrainingMaterial {
@@ -18,27 +18,37 @@ interface TrainingMaterial {
 
 export function AgentTraining({ agentId }: { agentId: string }) {
   const [materials, setMaterials] = useState<TrainingMaterial[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
     const fetchMaterials = async () => {
       try {
+        setIsLoading(true);
+        // Get training materials
         const materialsRef = collection(db, "training_materials");
         const materialsSnapshot = await getDocs(materialsRef);
         
+        // Get completion status
         const progressRef = collection(db, "onboarding_progress");
         const progressQuery = query(progressRef, where("agentId", "==", agentId));
         const progressSnapshot = await getDocs(progressQuery);
         
+        // Create a set of completed material IDs
         const completedMaterials = new Set(
           progressSnapshot.docs.map(doc => doc.data().materialId)
         );
 
+        // Map materials with completion status
         const materialsData: TrainingMaterial[] = [];
         materialsSnapshot.forEach((doc) => {
+          const data = doc.data();
           materialsData.push({
             id: doc.id,
-            ...doc.data() as Omit<TrainingMaterial, 'id'>,
+            title: data.title || '',
+            description: data.description || '',
+            type: data.type || 'document',
+            link: data.link || '',
             completed: completedMaterials.has(doc.id)
           });
         });
@@ -51,6 +61,8 @@ export function AgentTraining({ agentId }: { agentId: string }) {
           description: "Failed to load training materials",
           variant: "destructive"
         });
+      } finally {
+        setIsLoading(false);
       }
     };
 
@@ -62,7 +74,7 @@ export function AgentTraining({ agentId }: { agentId: string }) {
       const progressRef = doc(db, "onboarding_progress", `${agentId}-${materialId}`);
       await updateDoc(progressRef, {
         completed: true,
-        completedAt: new Date()
+        completedAt: new Date().toISOString() // Store as ISO string for serializability
       });
 
       setMaterials(prevMaterials =>
@@ -74,7 +86,7 @@ export function AgentTraining({ agentId }: { agentId: string }) {
       );
 
       toast({
-        title: "Progress Updated",
+        title: "Success",
         description: "Training material marked as completed",
       });
     } catch (error) {
@@ -90,6 +102,16 @@ export function AgentTraining({ agentId }: { agentId: string }) {
   const progress = Math.round(
     (materials.filter(m => m.completed).length / (materials.length || 1)) * 100
   );
+
+  if (isLoading) {
+    return (
+      <Card className="p-6">
+        <div className="flex items-center justify-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <Card className="p-6 space-y-6">
