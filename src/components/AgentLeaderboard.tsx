@@ -10,8 +10,8 @@ import {
 } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Line } from "react-chartjs-2";
-import { db } from "@/lib/firebase-config";
-import { collection, query, orderBy, limit, onSnapshot, QueryDocumentSnapshot, DocumentData } from "firebase/firestore";
+import { db } from "@/lib/firebase";
+import { collection, query, orderBy, limit, onSnapshot, DocumentData } from "firebase/firestore";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -46,15 +46,12 @@ export function AgentLeaderboard() {
   const [chartData, setChartData] = useState<any>(null);
 
   useEffect(() => {
-    const q = query(
-      collection(db, "agents"),
-      orderBy("redemptionsCount", "desc"),
-      limit(10)
-    );
+    const agentsRef = collection(db, "agents");
+    const q = query(agentsRef, orderBy("redemptionsCount", "desc"), limit(10));
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const agentsData: Agent[] = [];
-      snapshot.forEach((doc: QueryDocumentSnapshot<DocumentData>) => {
+      snapshot.forEach((doc) => {
         const index = agentsData.length;
         agentsData.push({
           id: doc.id,

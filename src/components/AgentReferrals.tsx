@@ -12,7 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { db } from "@/lib/firebase";
-import { collection, query, where, onSnapshot } from "firebase/firestore";
+import { collection, query, where, onSnapshot, DocumentData } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
 
 interface Referral {

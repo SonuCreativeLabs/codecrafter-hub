@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { CheckCircle2, PlayCircle, FileText, Download } from "lucide-react";
 import { db } from "@/lib/firebase";
-import { collection, query, getDocs, updateDoc, doc, where } from "firebase/firestore";
+import { collection, query, getDocs, updateDoc, doc, where, DocumentData } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
 
 interface TrainingMaterial {
@@ -23,15 +23,11 @@ export function AgentTraining({ agentId }: { agentId: string }) {
   useEffect(() => {
     const fetchMaterials = async () => {
       try {
-        // Get all training materials
-        const materialsQuery = query(collection(db, "training_materials"));
-        const materialsSnapshot = await getDocs(materialsQuery);
+        const materialsRef = collection(db, "training_materials");
+        const materialsSnapshot = await getDocs(materialsRef);
         
-        // Get progress data for this agent
-        const progressQuery = query(
-          collection(db, "onboarding_progress"),
-          where("agentId", "==", agentId)
-        );
+        const progressRef = collection(db, "onboarding_progress");
+        const progressQuery = query(progressRef, where("agentId", "==", agentId));
         const progressSnapshot = await getDocs(progressQuery);
         
         const completedMaterials = new Set(
@@ -42,9 +38,9 @@ export function AgentTraining({ agentId }: { agentId: string }) {
         materialsSnapshot.forEach((doc) => {
           materialsData.push({
             id: doc.id,
-            ...doc.data(),
+            ...doc.data() as Omit<TrainingMaterial, 'id'>,
             completed: completedMaterials.has(doc.id)
-          } as TrainingMaterial);
+          });
         });
         
         setMaterials(materialsData);
