@@ -11,7 +11,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Line } from "react-chartjs-2";
 import { db } from "@/lib/firebase-config";
-import { collection, query, orderBy, limit, onSnapshot } from "firebase/firestore";
+import { collection, query, orderBy, limit, onSnapshot, QueryDocumentSnapshot, DocumentData } from "firebase/firestore";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -54,7 +54,8 @@ export function AgentLeaderboard() {
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const agentsData: Agent[] = [];
-      snapshot.forEach((doc, index) => {
+      snapshot.forEach((doc: QueryDocumentSnapshot<DocumentData>) => {
+        const index = agentsData.length;
         agentsData.push({
           id: doc.id,
           ...doc.data() as Omit<Agent, 'id'>,
@@ -63,7 +64,6 @@ export function AgentLeaderboard() {
       });
       setAgents(agentsData);
 
-      // Prepare chart data
       setChartData({
         labels: agentsData.map(agent => agent.name),
         datasets: [

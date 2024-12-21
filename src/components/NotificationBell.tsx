@@ -9,19 +9,22 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { db } from "@/lib/firebase-config";
-import { collection, query, where, onSnapshot, updateDoc, doc } from "firebase/firestore";
+import { collection, query, where, onSnapshot, updateDoc, doc, Timestamp } from "firebase/firestore";
+import { useToast } from "@/hooks/use-toast";
 
 interface Notification {
   id: string;
   message: string;
   type: string;
   read: boolean;
-  timestamp: any;
+  timestamp: Timestamp;
+  targetUserId: string;
 }
 
 export function NotificationBell({ userId }: { userId: string }) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const { toast } = useToast();
 
   useEffect(() => {
     const q = query(
@@ -34,18 +37,36 @@ export function NotificationBell({ userId }: { userId: string }) {
       snapshot.forEach((doc) => {
         notifs.push({ id: doc.id, ...doc.data() as Omit<Notification, 'id'> });
       });
-      setNotifications(notifs);
+      setNotifications(notifs.sort((a, b) => b.timestamp.seconds - a.timestamp.seconds));
       setUnreadCount(notifs.filter(n => !n.read).length);
+
+      // Show toast for new unread notifications
+      const newUnread = notifs.filter(n => !n.read);
+      if (newUnread.length > 0) {
+        toast({
+          title: "New Notification",
+          description: newUnread[0].message,
+        });
+      }
     });
 
     return () => unsubscribe();
-  }, [userId]);
+  }, [userId, toast]);
 
   const markAsRead = async (notificationId: string) => {
-    const notificationRef = doc(db, "notifications", notificationId);
-    await updateDoc(notificationRef, {
-      read: true
-    });
+    try {
+      const notificationRef = doc(db, "notifications", notificationId);
+      await updateDoc(notificationRef, {
+        read: true
+      });
+    } catch (error) {
+      console.error("Error marking notification as read:", error);
+      toast({
+        title: "Error",
+        description: "Failed to mark notification as read",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -63,19 +84,19 @@ export function NotificationBell({ userId }: { userId: string }) {
           )}
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[300px]">
+      <DropdownMenuContent align="end" className="w-[300px] max-h-[400px] overflow-y-auto">
         {notifications.length === 0 ? (
           <DropdownMenuItem>No notifications</DropdownMenuItem>
         ) : (
           notifications.map((notification) => (
             <DropdownMenuItem
               key={notification.id}
-              className={`flex flex-col items-start ${!notification.read ? 'bg-accent' : ''}`}
+              className={`flex flex-col items-start p-3 ${!notification.read ? 'bg-accent' : ''}`}
               onClick={() => markAsRead(notification.id)}
             >
               <span className="font-medium">{notification.message}</span>
               <span className="text-xs text-muted-foreground">
-                {new Date(notification.timestamp?.toDate()).toLocaleString()}
+                {notification.timestamp.toDate().toLocaleString()}
               </span>
             </DropdownMenuItem>
           ))
