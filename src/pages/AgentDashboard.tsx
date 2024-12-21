@@ -11,6 +11,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Ticket, TrendingUp, Award, Check, X, Filter } from "lucide-react";
+import { AgentReferrals } from "@/components/AgentReferrals";
+import { AgentTraining } from "@/components/AgentTraining";
 
 interface PromoCode {
   code: string;
@@ -86,68 +88,69 @@ const AgentDashboard = () => {
           </Card>
         </div>
 
-        <Card className="glass-card p-6">
-          <div className="space-y-4">
-            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-              <h2 className="text-xl font-semibold">Your Promo Codes</h2>
-              <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
-                <div className="relative flex-1 md:flex-initial">
-                  <Input
-                    placeholder="Search codes..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10"
-                  />
-                  <Filter className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                </div>
-                <select
-                  className="form-select w-full md:w-auto px-3 py-2 border rounded-md bg-background"
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value as "all" | "redeemed" | "unredeemed")}
-                >
-                  <option value="all">All Status</option>
-                  <option value="redeemed">Redeemed</option>
-                  <option value="unredeemed">Unredeemed</option>
-                </select>
-              </div>
-            </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <AgentReferrals agentId="12345" />
+          <AgentTraining agentId="12345" />
+        </div>
 
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Code</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Redemptions</TableHead>
-                    <TableHead>Redeemed</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredCodes.map((code) => (
-                    <TableRow key={code.code}>
-                      <TableCell className="font-medium">{code.code}</TableCell>
-                      <TableCell>
-                        <Badge
-                          variant={code.status === "Active" ? "default" : "secondary"}
-                        >
-                          {code.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>{code.redemptions}</TableCell>
-                      <TableCell>
-                        {code.isRedeemed ? (
-                          <Check className="h-5 w-5 text-green-500" />
-                        ) : (
-                          <X className="h-5 w-5 text-red-500" />
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold">Your Promo Codes</h2>
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <div className="relative flex-1 md:flex-initial">
+              <Input
+                placeholder="Search codes..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+              <Filter className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
             </div>
+            <select
+              className="form-select w-full md:w-auto px-3 py-2 border rounded-md bg-background"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value as "all" | "redeemed" | "unredeemed")}
+            >
+              <option value="all">All Status</option>
+              <option value="redeemed">Redeemed</option>
+              <option value="unredeemed">Unredeemed</option>
+            </select>
           </div>
-        </Card>
+
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Code</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Redemptions</TableHead>
+                  <TableHead>Redeemed</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredCodes.map((code) => (
+                  <TableRow key={code.code}>
+                    <TableCell className="font-medium">{code.code}</TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={code.status === "Active" ? "default" : "secondary"}
+                      >
+                        {code.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{code.redemptions}</TableCell>
+                    <TableCell>
+                      {code.isRedeemed ? (
+                        <Check className="h-5 w-5 text-green-500" />
+                      ) : (
+                        <X className="h-5 w-5 text-red-500" />
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
       </div>
     </div>
   );
