@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { CheckCircle2, PlayCircle, FileText, Download } from "lucide-react";
 import { db } from "@/lib/firebase";
-import { collection, query, where, onSnapshot, updateDoc, doc } from "firebase/firestore";
+import { collection, query, getDocs, updateDoc, doc, where } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
 
 interface TrainingMaterial {
@@ -21,33 +21,45 @@ export function AgentTraining({ agentId }: { agentId: string }) {
   const { toast } = useToast();
 
   useEffect(() => {
-    const q = query(collection(db, "training_materials"));
-    
-    const unsubscribe = onSnapshot(q, async (snapshot) => {
-      const materialsData: TrainingMaterial[] = [];
-      
-      // Get progress data for this agent
-      const progressSnapshot = await collection(db, "onboarding_progress")
-        .where("agentId", "==", agentId)
-        .get();
-      
-      const completedMaterials = new Set(
-        progressSnapshot.docs.map(doc => doc.data().materialId)
-      );
+    const fetchMaterials = async () => {
+      try {
+        // Get all training materials
+        const materialsQuery = query(collection(db, "training_materials"));
+        const materialsSnapshot = await getDocs(materialsQuery);
+        
+        // Get progress data for this agent
+        const progressQuery = query(
+          collection(db, "onboarding_progress"),
+          where("agentId", "==", agentId)
+        );
+        const progressSnapshot = await getDocs(progressQuery);
+        
+        const completedMaterials = new Set(
+          progressSnapshot.docs.map(doc => doc.data().materialId)
+        );
 
-      snapshot.forEach((doc) => {
-        materialsData.push({
-          id: doc.id,
-          ...doc.data(),
-          completed: completedMaterials.has(doc.id)
-        } as TrainingMaterial);
-      });
-      
-      setMaterials(materialsData);
-    });
+        const materialsData: TrainingMaterial[] = [];
+        materialsSnapshot.forEach((doc) => {
+          materialsData.push({
+            id: doc.id,
+            ...doc.data(),
+            completed: completedMaterials.has(doc.id)
+          } as TrainingMaterial);
+        });
+        
+        setMaterials(materialsData);
+      } catch (error) {
+        console.error("Error fetching materials:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load training materials",
+          variant: "destructive"
+        });
+      }
+    };
 
-    return () => unsubscribe();
-  }, [agentId]);
+    fetchMaterials();
+  }, [agentId, toast]);
 
   const markAsCompleted = async (materialId: string) => {
     try {
@@ -57,11 +69,20 @@ export function AgentTraining({ agentId }: { agentId: string }) {
         completedAt: new Date()
       });
 
+      setMaterials(prevMaterials =>
+        prevMaterials.map(material =>
+          material.id === materialId
+            ? { ...material, completed: true }
+            : material
+        )
+      );
+
       toast({
         title: "Progress Updated",
         description: "Training material marked as completed",
       });
     } catch (error) {
+      console.error("Error updating progress:", error);
       toast({
         title: "Error",
         description: "Failed to update progress",
@@ -71,7 +92,7 @@ export function AgentTraining({ agentId }: { agentId: string }) {
   };
 
   const progress = Math.round(
-    (materials.filter(m => m.completed).length / materials.length) * 100
+    (materials.filter(m => m.completed).length / (materials.length || 1)) * 100
   );
 
   return (
