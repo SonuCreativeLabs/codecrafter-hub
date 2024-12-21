@@ -11,7 +11,8 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Line } from "react-chartjs-2";
 import { db } from "@/lib/firebase";
-import { collection, query, orderBy, limit, getDocs, DocumentData } from "firebase/firestore";
+import { collection, query, orderBy, limit, getDocs } from "firebase/firestore";
+import { useToast } from "@/hooks/use-toast";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -44,6 +45,7 @@ export function AgentLeaderboard() {
   const [timeRange, setTimeRange] = useState("weekly");
   const [agents, setAgents] = useState<Agent[]>([]);
   const [chartData, setChartData] = useState<any>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchAgents = async () => {
@@ -54,16 +56,21 @@ export function AgentLeaderboard() {
         
         const agentsData: Agent[] = [];
         snapshot.forEach((doc) => {
-          const index = agentsData.length;
-          agentsData.push({
+          // Ensure we only get serializable data
+          const data = doc.data();
+          const agent: Agent = {
             id: doc.id,
-            ...doc.data() as Omit<Agent, 'id'>,
-            rank: index + 1
-          });
+            name: data.name || '',
+            redemptionsCount: data.redemptionsCount || 0,
+            rank: agentsData.length + 1
+          };
+          agentsData.push(agent);
         });
         
         setAgents(agentsData);
-        setChartData({
+
+        // Create chart data with serializable objects only
+        const chartDataObj = {
           labels: agentsData.map(agent => agent.name),
           datasets: [
             {
@@ -73,14 +80,20 @@ export function AgentLeaderboard() {
               tension: 0.1
             }
           ]
-        });
+        };
+        setChartData(chartDataObj);
       } catch (error) {
         console.error("Error fetching agents:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load leaderboard data",
+          variant: "destructive"
+        });
       }
     };
 
     fetchAgents();
-  }, [timeRange]);
+  }, [timeRange, toast]);
 
   return (
     <Card className="p-6 space-y-6">
