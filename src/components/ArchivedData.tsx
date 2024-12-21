@@ -36,18 +36,27 @@ export function ArchivedData() {
   const { toast } = useToast();
 
   const handleSearch = async () => {
-    const querySnapshot = await getDocs(
-      query(
-        collection(db, filterType === "all" ? "archived_items" : filterType),
-        where("is_archived", "==", true)
-      )
-    );
-    
-    const items: ArchivedItem[] = [];
-    querySnapshot.forEach((doc) => {
-      items.push({ id: doc.id, ...doc.data() } as ArchivedItem);
-    });
-    setArchivedItems(items);
+    try {
+      const querySnapshot = await getDocs(
+        query(
+          collection(db, filterType === "all" ? "archived_items" : filterType),
+          where("is_archived", "==", true)
+        )
+      );
+      
+      const items: ArchivedItem[] = [];
+      querySnapshot.forEach((doc) => {
+        items.push({ id: doc.id, ...doc.data() } as ArchivedItem);
+      });
+      setArchivedItems(items);
+    } catch (error) {
+      console.error("Error searching archived items:", error);
+      toast({
+        title: "Error",
+        description: "Failed to search archived items",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleRestore = async (item: ArchivedItem) => {

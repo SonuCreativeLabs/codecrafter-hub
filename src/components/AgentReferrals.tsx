@@ -12,7 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { db } from "@/lib/firebase";
-import { collection, query, where, onSnapshot, DocumentData } from "firebase/firestore";
+import { collection, query, where, getDocs } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
 
 interface Referral {
@@ -33,22 +33,31 @@ export function AgentReferrals({ agentId }: { agentId: string }) {
     // Generate unique referral code based on agent ID
     setReferralCode(`REF-${agentId}-${Math.random().toString(36).substr(2, 6)}`);
 
-    // Subscribe to referrals collection
-    const q = query(
-      collection(db, "referrals"),
-      where("referrerId", "==", agentId)
-    );
+    const fetchReferrals = async () => {
+      try {
+        const q = query(
+          collection(db, "referrals"),
+          where("referrerId", "==", agentId)
+        );
+        
+        const snapshot = await getDocs(q);
+        const referralData: Referral[] = [];
+        snapshot.forEach((doc) => {
+          referralData.push({ id: doc.id, ...doc.data() } as Referral);
+        });
+        setReferrals(referralData);
+      } catch (error) {
+        console.error("Error fetching referrals:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load referrals",
+          variant: "destructive"
+        });
+      }
+    };
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const referralData: Referral[] = [];
-      snapshot.forEach((doc) => {
-        referralData.push({ id: doc.id, ...doc.data() } as Referral);
-      });
-      setReferrals(referralData);
-    });
-
-    return () => unsubscribe();
-  }, [agentId]);
+    fetchReferrals();
+  }, [agentId, toast]);
 
   const copyReferralCode = () => {
     navigator.clipboard.writeText(referralCode);
