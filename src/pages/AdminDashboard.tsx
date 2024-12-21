@@ -8,6 +8,8 @@ import { AgentManagement } from "@/components/AgentManagement";
 import { AdminReports } from "@/components/AdminReports";
 import { AgentLeaderboard } from "@/components/AgentLeaderboard";
 import { NotificationBell } from "@/components/NotificationBell";
+import { ArchivedData } from "@/components/ArchivedData";
+import { RedemptionTrends } from "@/components/RedemptionTrends";
 
 const AdminDashboard = () => {
   const [currentView, setCurrentView] = useState("dashboard");
@@ -26,6 +28,10 @@ const AdminDashboard = () => {
         return <AdminReports />;
       case "leaderboard":
         return <AgentLeaderboard />;
+      case "redemption-trends":
+        return <RedemptionTrends />;
+      case "archived-data":
+        return <ArchivedData />;
       default:
         return (
           <div className="space-y-6">
