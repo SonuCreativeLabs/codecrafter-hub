@@ -58,7 +58,7 @@ const AdminDashboard = () => {
                     <h3 className="text-2xl font-bold">77</h3>
                   </div>
                 </div>
-              </div>
+              </Card>
             </div>
             <AgentLeaderboard />
           </div>
