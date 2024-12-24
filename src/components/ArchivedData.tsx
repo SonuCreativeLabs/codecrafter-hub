@@ -1,8 +1,7 @@
 import { useState } from "react";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Archive, RefreshCcw } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -11,130 +10,165 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { db } from "@/lib/firebase";
-import { collection, query, where, getDocs, updateDoc, doc } from "firebase/firestore";
-import { useToast } from "@/hooks/use-toast";
+import { Badge } from "@/components/ui/badge";
+import { Archive, Download, Search, Filter } from "lucide-react";
 
 interface ArchivedItem {
   id: string;
-  type: "promo_code" | "agent";
-  name: string;
-  archivedDate: Date;
+  code: string;
+  customerName: string;
+  customerPhone: string;
+  redemptionDate: string;
+  amount: number;
+  status: "completed" | "cancelled" | "expired";
+  agentName: string;
 }
+
+const mockArchivedData: ArchivedItem[] = [
+  {
+    id: "AR001",
+    code: "COOL123",
+    customerName: "Rajesh Kumar",
+    customerPhone: "+91 98765 43210",
+    redemptionDate: "2023-12-15",
+    amount: 5000,
+    status: "completed",
+    agentName: "Priya Singh"
+  },
+  {
+    id: "AR002",
+    code: "COOL124",
+    customerName: "Meera Patel",
+    customerPhone: "+91 98765 43211",
+    redemptionDate: "2023-12-14",
+    status: "cancelled",
+    amount: 3000,
+    agentName: "Amit Patel"
+  },
+  {
+    id: "AR003",
+    code: "COOL125",
+    customerName: "Suresh Shah",
+    customerPhone: "+91 98765 43212",
+    redemptionDate: "2023-12-13",
+    amount: 7500,
+    status: "completed",
+    agentName: "Rahul Kumar"
+  },
+  {
+    id: "AR004",
+    code: "COOL126",
+    customerName: "Anita Desai",
+    customerPhone: "+91 98765 43213",
+    redemptionDate: "2023-12-12",
+    amount: 4500,
+    status: "expired",
+    agentName: "Deepa Sharma"
+  },
+  {
+    id: "AR005",
+    code: "COOL127",
+    customerName: "Vikram Malhotra",
+    customerPhone: "+91 98765 43214",
+    redemptionDate: "2023-12-11",
+    amount: 6000,
+    status: "completed",
+    agentName: "Priya Singh"
+  }
+];
 
 export function ArchivedData() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [filterType, setFilterType] = useState<"all" | "promo_code" | "agent">("all");
-  const [archivedItems, setArchivedItems] = useState<ArchivedItem[]>([]);
-  const { toast } = useToast();
+  const [filteredData, setFilteredData] = useState<ArchivedItem[]>(mockArchivedData);
 
-  const handleSearch = async () => {
-    try {
-      const querySnapshot = await getDocs(
-        query(
-          collection(db, filterType === "all" ? "archived_items" : filterType),
-          where("is_archived", "==", true)
-        )
-      );
-      
-      const items: ArchivedItem[] = [];
-      querySnapshot.forEach((doc) => {
-        items.push({ id: doc.id, ...doc.data() } as ArchivedItem);
-      });
-      setArchivedItems(items);
-    } catch (error) {
-      console.error("Error searching archived items:", error);
-      toast({
-        title: "Error",
-        description: "Failed to search archived items",
-        variant: "destructive"
-      });
-    }
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    const filtered = mockArchivedData.filter(item =>
+      item.code.toLowerCase().includes(term.toLowerCase()) ||
+      item.customerName.toLowerCase().includes(term.toLowerCase()) ||
+      item.customerPhone.includes(term) ||
+      item.agentName.toLowerCase().includes(term.toLowerCase())
+    );
+    setFilteredData(filtered);
   };
 
-  const handleRestore = async (item: ArchivedItem) => {
-    try {
-      const itemRef = doc(db, item.type, item.id);
-      await updateDoc(itemRef, {
-        is_archived: false
-      });
-      
-      toast({
-        title: "Item Restored",
-        description: `${item.name} has been restored successfully.`
-      });
-      
-      // Refresh the list
-      handleSearch();
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to restore item.",
-        variant: "destructive"
-      });
+  const getStatusColor = (status: ArchivedItem["status"]) => {
+    switch (status) {
+      case "completed":
+        return "bg-green-500";
+      case "cancelled":
+        return "bg-red-500";
+      case "expired":
+        return "bg-yellow-500";
+      default:
+        return "bg-gray-500";
     }
   };
 
   return (
-    <Card className="p-6">
-      <div className="space-y-6">
-        <div className="flex items-center gap-4">
-          <Input
-            placeholder="Search archived items..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="max-w-sm"
-          />
-          <Select value={filterType} onValueChange={(value: "all" | "promo_code" | "agent") => setFilterType(value)}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Items</SelectItem>
-              <SelectItem value="promo_code">Promo Codes</SelectItem>
-              <SelectItem value="agent">Agents</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button onClick={handleSearch}>Search</Button>
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between">
+        <CardTitle className="flex items-center gap-2">
+          <Archive className="h-5 w-5" />
+          Archived Records
+        </CardTitle>
+        <Button variant="outline" size="sm">
+          <Download className="h-4 w-4 mr-2" />
+          Export
+        </Button>
+      </CardHeader>
+      <CardContent>
+        <div className="flex items-center gap-4 mb-6">
+          <div className="relative flex-1">
+            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search by code, customer, or agent..."
+              value={searchTerm}
+              onChange={(e) => handleSearch(e.target.value)}
+              className="pl-8"
+            />
+          </div>
+          <Button variant="outline" size="icon">
+            <Filter className="h-4 w-4" />
+          </Button>
         </div>
 
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Type</TableHead>
-              <TableHead>Archived Date</TableHead>
-              <TableHead>Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {archivedItems.map((item) => (
-              <TableRow key={item.id}>
-                <TableCell>{item.name}</TableCell>
-                <TableCell>{item.type}</TableCell>
-                <TableCell>{item.archivedDate.toLocaleDateString()}</TableCell>
-                <TableCell>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleRestore(item)}
-                  >
-                    <RefreshCcw className="h-4 w-4 mr-2" />
-                    Restore
-                  </Button>
-                </TableCell>
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Code</TableHead>
+                <TableHead>Customer</TableHead>
+                <TableHead className="hidden md:table-cell">Phone</TableHead>
+                <TableHead className="hidden md:table-cell">Date</TableHead>
+                <TableHead>Amount</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="hidden md:table-cell">Agent</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+            </TableHeader>
+            <TableBody>
+              {filteredData.map((item) => (
+                <TableRow key={item.id}>
+                  <TableCell className="font-medium">{item.code}</TableCell>
+                  <TableCell>{item.customerName}</TableCell>
+                  <TableCell className="hidden md:table-cell">{item.customerPhone}</TableCell>
+                  <TableCell className="hidden md:table-cell">{new Date(item.redemptionDate).toLocaleDateString()}</TableCell>
+                  <TableCell>₹{item.amount.toLocaleString()}</TableCell>
+                  <TableCell>
+                    <Badge 
+                      variant="secondary"
+                      className={`${getStatusColor(item.status)} text-white`}
+                    >
+                      {item.status.charAt(0).toUpperCase() + item.status.slice(1)}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="hidden md:table-cell">{item.agentName}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      </CardContent>
     </Card>
   );
 }

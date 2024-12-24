@@ -22,18 +22,22 @@ interface NotificationListProps {
 
 export function NotificationList({ notifications, onMarkAsRead }: NotificationListProps) {
   return (
-    <DropdownMenuContent className="w-80 p-0">
-      <DropdownMenuLabel className="p-4 text-lg font-semibold">
+    <DropdownMenuContent 
+      className="w-80 p-0 bg-white dark:bg-gray-950 shadow-lg border-2 border-gray-100 dark:border-gray-800"
+      sideOffset={5}
+      align="end"
+    >
+      <DropdownMenuLabel className="p-4 text-lg font-semibold bg-gray-50 dark:bg-gray-900">
         Notifications
       </DropdownMenuLabel>
       <DropdownMenuSeparator />
       <ScrollArea className="h-[300px]">
         {notifications.length === 0 ? (
-          <p className="text-sm text-muted-foreground p-4 text-center">
+          <p className="text-sm text-muted-foreground p-4 text-center bg-white dark:bg-gray-950">
             No notifications
           </p>
         ) : (
-          <div className="space-y-1">
+          <div className="space-y-1 bg-white dark:bg-gray-950">
             {notifications.map((notification) => (
               <NotificationItem
                 key={notification.id}
