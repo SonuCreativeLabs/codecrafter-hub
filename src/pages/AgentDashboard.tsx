@@ -9,9 +9,25 @@ import { AgentFeedback } from "@/components/AgentFeedback";
 import { AgentSupport } from "@/components/AgentSupport";
 import { AgentFAQ } from "@/components/AgentFAQ";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { MessageSquareHelp, MessageSquare, HelpCircle } from "lucide-react";
 
 const AgentDashboard = () => {
+  const [activeSection, setActiveSection] = useState<string | null>(null);
+
+  const renderSupportSection = () => {
+    switch (activeSection) {
+      case 'support':
+        return <AgentSupport agentId="12345" />;
+      case 'feedback':
+        return <AgentFeedback agentId="12345" />;
+      case 'faq':
+        return <AgentFAQ />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-4 md:p-6 animate-in">
       <div className="max-w-7xl mx-auto space-y-6">
@@ -27,34 +43,46 @@ const AgentDashboard = () => {
 
         <AgentPerformanceMetrics />
 
-        <Tabs defaultValue="overview" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4">
-            <TabsTrigger value="overview">Overview</TabsTrigger>
-            <TabsTrigger value="support">Support</TabsTrigger>
-            <TabsTrigger value="feedback">Feedback</TabsTrigger>
-            <TabsTrigger value="faq">FAQ</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="overview" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <AgentReferrals agentId="12345" />
-              <AgentTraining agentId="12345" />
-            </div>
-            <AgentLeaderboard />
-          </TabsContent>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <AgentReferrals agentId="12345" />
+          <AgentTraining agentId="12345" />
+        </div>
 
-          <TabsContent value="support">
-            <AgentSupport agentId="12345" />
-          </TabsContent>
+        <AgentLeaderboard />
 
-          <TabsContent value="feedback">
-            <AgentFeedback agentId="12345" />
-          </TabsContent>
+        {/* Support, Feedback, and FAQ Section */}
+        <Card className="p-6 space-y-6 animate-fadeIn">
+          <div className="flex flex-wrap gap-4 justify-center">
+            <Button
+              variant={activeSection === 'support' ? 'default' : 'outline'}
+              className="flex items-center gap-2 hover:scale-105 transition-transform"
+              onClick={() => setActiveSection(activeSection === 'support' ? null : 'support')}
+            >
+              <MessageSquareHelp className="h-4 w-4" />
+              Support Center
+            </Button>
+            <Button
+              variant={activeSection === 'feedback' ? 'default' : 'outline'}
+              className="flex items-center gap-2 hover:scale-105 transition-transform"
+              onClick={() => setActiveSection(activeSection === 'feedback' ? null : 'feedback')}
+            >
+              <MessageSquare className="h-4 w-4" />
+              Submit Feedback
+            </Button>
+            <Button
+              variant={activeSection === 'faq' ? 'default' : 'outline'}
+              className="flex items-center gap-2 hover:scale-105 transition-transform"
+              onClick={() => setActiveSection(activeSection === 'faq' ? null : 'faq')}
+            >
+              <HelpCircle className="h-4 w-4" />
+              FAQs
+            </Button>
+          </div>
 
-          <TabsContent value="faq">
-            <AgentFAQ />
-          </TabsContent>
-        </Tabs>
+          <div className="mt-6 animate-fadeIn">
+            {renderSupportSection()}
+          </div>
+        </Card>
       </div>
     </div>
   );
