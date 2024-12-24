@@ -3,7 +3,7 @@ import { Bell } from "lucide-react";
 import { DropdownMenu, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Badge } from "@/components/ui/badge";
 import { db } from "@/lib/firebase";
-import { collection, query, where, onSnapshot, updateDoc, doc, Timestamp } from "firebase/firestore";
+import { collection, query, where, onSnapshot, updateDoc, doc, Timestamp, DocumentData } from "firebase/firestore";
 import { useToast } from "@/hooks/use-toast";
 import { NotificationList } from "./notifications/NotificationList";
 
@@ -25,16 +25,37 @@ export function NotificationBell({ userId }: { userId: string }) {
       where("userId", "==", userId)
     );
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const notifs: Notification[] = [];
-      snapshot.forEach((doc) => {
-        notifs.push({ id: doc.id, ...doc.data() } as Notification);
-      });
-      setNotifications(notifs.sort((a, b) => b.timestamp.seconds - a.timestamp.seconds));
+    const unsubscribe = onSnapshot(q, {
+      next: (snapshot) => {
+        const notifs: Notification[] = [];
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          // Ensure timestamp is properly handled
+          const timestamp = data.timestamp instanceof Timestamp 
+            ? data.timestamp 
+            : Timestamp.fromDate(new Date(data.timestamp));
+          
+          notifs.push({
+            id: doc.id,
+            message: data.message,
+            timestamp: timestamp,
+            read: data.read,
+            type: data.type
+          });
+        });
+        setNotifications(notifs.sort((a, b) => b.timestamp.seconds - a.timestamp.seconds));
+      },
+      error: (error) => {
+        console.error("Error fetching notifications:", error);
+        toast({
+          variant: "destructive",
+          description: "Failed to load notifications"
+        });
+      }
     });
 
     return () => unsubscribe();
-  }, [userId]);
+  }, [userId, toast]);
 
   const handleMarkAsRead = async (notificationId: string) => {
     try {

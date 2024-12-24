@@ -1,7 +1,6 @@
 import { initializeApp, getApps } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
-import { getMessaging } from 'firebase/messaging';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCCLOiVX1ZYXx6_3JxDWiYzBs8rbP1RC58",
@@ -17,6 +16,17 @@ const firebaseConfig = {
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApps()[0];
 export const auth = getAuth(app);
 export const db = getFirestore(app);
-export const messaging = getMessaging(app);
 
+// Only initialize messaging if the browser supports it
+let messaging;
+try {
+  if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+    const { getMessaging } = require('firebase/messaging');
+    messaging = getMessaging(app);
+  }
+} catch (error) {
+  console.log('Firebase messaging is not supported in this browser');
+}
+
+export { messaging };
 export default app;
