@@ -13,6 +13,8 @@ import { Input } from "@/components/ui/input";
 import { Ticket, TrendingUp, Award, Check, X, Filter } from "lucide-react";
 import { AgentReferrals } from "@/components/AgentReferrals";
 import { AgentTraining } from "@/components/AgentTraining";
+import { AgentPerformanceMetrics } from "@/components/AgentPerformanceMetrics";
+import { NotificationBell } from "@/components/NotificationBell";
 
 interface PromoCode {
   code: string;
@@ -32,9 +34,6 @@ const AgentDashboard = () => {
     { code: "WINTER23", status: "Expired", redemptions: 0, isRedeemed: false },
   ];
 
-  const totalRedemptions = promoCodes.reduce((acc, code) => acc + code.redemptions, 0);
-  const activeCodesCount = promoCodes.filter(code => code.status === "Active").length;
-
   const filteredCodes = promoCodes.filter(code => {
     const matchesSearch = code.code.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = 
@@ -45,48 +44,19 @@ const AgentDashboard = () => {
   });
 
   return (
-    <div className="min-h-screen bg-secondary p-6">
+    <div className="min-h-screen bg-secondary p-4 md:p-6">
       <div className="max-w-7xl mx-auto space-y-6 animate-in">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-primary">Agent Dashboard</h1>
-          <Badge variant="outline" className="text-accent">
-            Agent ID: #12345
-          </Badge>
+          <div className="flex items-center gap-4">
+            <NotificationBell userId="12345" />
+            <Badge variant="outline" className="text-accent">
+              Agent ID: #12345
+            </Badge>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card className="glass-card p-6">
-            <div className="flex items-center space-x-4">
-              <Ticket className="h-10 w-10 text-accent" />
-              <div>
-                <p className="text-sm text-muted-foreground">Active Codes</p>
-                <h3 className="text-2xl font-bold">{activeCodesCount}</h3>
-              </div>
-            </div>
-          </Card>
-
-          <Card className="glass-card p-6">
-            <div className="flex items-center space-x-4">
-              <TrendingUp className="h-10 w-10 text-accent" />
-              <div>
-                <p className="text-sm text-muted-foreground">Total Redemptions</p>
-                <h3 className="text-2xl font-bold">{totalRedemptions}</h3>
-              </div>
-            </div>
-          </Card>
-
-          <Card className="glass-card p-6">
-            <div className="flex items-center space-x-4">
-              <Award className="h-10 w-10 text-accent" />
-              <div>
-                <p className="text-sm text-muted-foreground">Performance Score</p>
-                <h3 className="text-2xl font-bold">
-                  {Math.round((totalRedemptions / activeCodesCount) * 100)}%
-                </h3>
-              </div>
-            </div>
-          </Card>
-        </div>
+        <AgentPerformanceMetrics />
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <AgentReferrals agentId="12345" />
@@ -116,7 +86,7 @@ const AgentDashboard = () => {
             </select>
           </div>
 
-          <div className="overflow-x-auto">
+          <Card className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -128,7 +98,7 @@ const AgentDashboard = () => {
               </TableHeader>
               <TableBody>
                 {filteredCodes.map((code) => (
-                  <TableRow key={code.code}>
+                  <TableRow key={code.code} className="hover:bg-muted/50 transition-colors">
                     <TableCell className="font-medium">{code.code}</TableCell>
                     <TableCell>
                       <Badge
@@ -149,7 +119,7 @@ const AgentDashboard = () => {
                 ))}
               </TableBody>
             </Table>
-          </div>
+          </Card>
         </div>
       </div>
     </div>
