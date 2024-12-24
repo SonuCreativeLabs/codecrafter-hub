@@ -5,9 +5,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
-import { auth } from "@/lib/firebase";
+import { auth, db } from "@/lib/firebase";
 import { signInWithEmailAndPassword, signInWithPhoneNumber, RecaptchaVerifier } from "firebase/auth";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
+import { collection, getDocs, query, where } from "firebase/firestore";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -16,6 +17,7 @@ const Login = () => {
   const [showOTP, setShowOTP] = useState(false);
   const [otp, setOTP] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [agentPassword, setAgentPassword] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -41,11 +43,46 @@ const Login = () => {
     }
   };
 
+  const verifyAgentCredentials = async () => {
+    try {
+      const agentsRef = collection(db, "agents");
+      const q = query(agentsRef, where("mobile", "==", phoneNumber));
+      const querySnapshot = await getDocs(q);
+      
+      if (querySnapshot.empty) {
+        throw new Error("Agent not found");
+      }
+
+      const agentDoc = querySnapshot.docs[0];
+      const agentData = agentDoc.data();
+
+      if (agentData.password !== agentPassword) {
+        throw new Error("Invalid password");
+      }
+
+      return true;
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+      return false;
+    }
+  };
+
   const handleAgentLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     try {
+      const isCredentialsValid = await verifyAgentCredentials();
+      
+      if (!isCredentialsValid) {
+        setIsLoading(false);
+        return;
+      }
+
       // Initialize reCAPTCHA verifier
       const recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
         size: 'invisible',
@@ -116,6 +153,7 @@ const Login = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required 
+                    className="transition-all duration-200 hover:border-accent focus:border-accent"
                   />
                 </div>
                 <div className="space-y-2">
@@ -126,9 +164,14 @@ const Login = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required 
+                    className="transition-all duration-200 hover:border-accent focus:border-accent"
                   />
                 </div>
-                <Button type="submit" className="w-full" disabled={isLoading}>
+                <Button 
+                  type="submit" 
+                  className="w-full transition-all duration-200 hover:bg-accent active:scale-95" 
+                  disabled={isLoading}
+                >
                   {isLoading ? "Signing in..." : "Sign in"}
                 </Button>
               </form>
@@ -147,10 +190,26 @@ const Login = () => {
                         onChange={(e) => setPhoneNumber(e.target.value)}
                         placeholder="+91XXXXXXXXXX"
                         required 
+                        className="transition-all duration-200 hover:border-accent focus:border-accent"
                       />
                     </div>
-                    <Button type="submit" className="w-full" disabled={isLoading}>
-                      {isLoading ? "Sending OTP..." : "Send OTP"}
+                    <div className="space-y-2">
+                      <Label htmlFor="agentPassword">Password</Label>
+                      <Input 
+                        id="agentPassword" 
+                        type="password" 
+                        value={agentPassword}
+                        onChange={(e) => setAgentPassword(e.target.value)}
+                        required 
+                        className="transition-all duration-200 hover:border-accent focus:border-accent"
+                      />
+                    </div>
+                    <Button 
+                      type="submit" 
+                      className="w-full transition-all duration-200 hover:bg-accent active:scale-95" 
+                      disabled={isLoading}
+                    >
+                      {isLoading ? "Verifying..." : "Send OTP"}
                     </Button>
                   </>
                 ) : (
@@ -163,14 +222,19 @@ const Login = () => {
                       render={({ slots }) => (
                         <InputOTPGroup className="gap-2">
                           {slots.map((slot, idx) => (
-                            <InputOTPSlot key={idx} {...slot} index={idx} />
+                            <InputOTPSlot 
+                              key={idx} 
+                              {...slot} 
+                              index={idx}
+                              className="transition-all duration-200 hover:border-accent focus:border-accent" 
+                            />
                           ))}
                         </InputOTPGroup>
                       )}
                     />
                     <Button 
                       type="button" 
-                      className="w-full" 
+                      className="w-full transition-all duration-200 hover:bg-accent active:scale-95" 
                       onClick={verifyOTP}
                       disabled={isLoading || otp.length !== 6}
                     >
