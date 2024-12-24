@@ -10,7 +10,7 @@ import { AgentSupport } from "@/components/AgentSupport";
 import { AgentFAQ } from "@/components/AgentFAQ";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MessageSquareHelp, MessageSquare, HelpCircle } from "lucide-react";
+import { MessageSquare, HelpCircle, LifeBuoy } from "lucide-react";
 
 const AgentDashboard = () => {
   const [activeSection, setActiveSection] = useState<string | null>(null);
@@ -58,7 +58,7 @@ const AgentDashboard = () => {
               className="flex items-center gap-2 hover:scale-105 transition-transform"
               onClick={() => setActiveSection(activeSection === 'support' ? null : 'support')}
             >
-              <MessageSquareHelp className="h-4 w-4" />
+              <LifeBuoy className="h-4 w-4" />
               Support Center
             </Button>
             <Button
