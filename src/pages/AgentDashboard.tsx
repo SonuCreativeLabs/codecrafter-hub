@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { AgentReferrals } from "@/components/AgentReferrals";
-import { AgentTraining } from "@/components/AgentTraining";
 import { AgentPerformanceMetrics } from "@/components/AgentPerformanceMetrics";
 import { NotificationBell } from "@/components/NotificationBell";
 import { AgentLeaderboard } from "@/components/AgentLeaderboard";
@@ -43,9 +42,9 @@ const AgentDashboard = () => {
 
         <AgentPerformanceMetrics />
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Referrals Section */}
+        <div className="w-full">
           <AgentReferrals agentId="12345" />
-          <AgentTraining agentId="12345" />
         </div>
 
         <AgentLeaderboard />

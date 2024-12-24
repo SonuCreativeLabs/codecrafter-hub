@@ -1,161 +1,132 @@
-import { useState, useEffect } from "react";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Download } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Line, Bar } from "react-chartjs-2";
-import { db } from "@/lib/firebase";
-import { collection, query, orderBy, getDocs } from "firebase/firestore";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend
-} from 'chart.js';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend
-);
+const sampleDailyData = [
+  { date: "Mon", redemptions: 45, revenue: 22500 },
+  { date: "Tue", redemptions: 52, revenue: 26000 },
+  { date: "Wed", redemptions: 48, revenue: 24000 },
+  { date: "Thu", redemptions: 61, revenue: 30500 },
+  { date: "Fri", redemptions: 58, revenue: 29000 },
+  { date: "Sat", redemptions: 64, revenue: 32000 },
+  { date: "Sun", redemptions: 52, revenue: 26000 },
+];
 
-interface RedemptionData {
-  date: string;
-  count: number;
-}
+const sampleWeeklyData = [
+  { date: "Week 1", redemptions: 320, revenue: 160000 },
+  { date: "Week 2", redemptions: 385, revenue: 192500 },
+  { date: "Week 3", redemptions: 402, revenue: 201000 },
+  { date: "Week 4", redemptions: 428, revenue: 214000 },
+];
+
+const sampleMonthlyData = [
+  { date: "Jan", redemptions: 1250, revenue: 625000 },
+  { date: "Feb", redemptions: 1420, revenue: 710000 },
+  { date: "Mar", redemptions: 1680, revenue: 840000 },
+  { date: "Apr", redemptions: 1520, revenue: 760000 },
+  { date: "May", redemptions: 1750, revenue: 875000 },
+  { date: "Jun", redemptions: 1820, revenue: 910000 },
+];
 
 export function RedemptionTrends() {
-  const [timeRange, setTimeRange] = useState("weekly");
-  const [viewType, setViewType] = useState("line");
-  const [data, setData] = useState<RedemptionData[]>([]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const q = query(
-        collection(db, "redemptions"),
-        orderBy("date", "desc")
-      );
-      
-      const querySnapshot = await getDocs(q);
-      const redemptions: RedemptionData[] = [];
-      
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        redemptions.push({
-          date: new Date(data.date.seconds * 1000).toLocaleDateString(),
-          count: data.count
-        });
-      });
-      
-      setData(redemptions);
-    };
-
-    fetchData();
-  }, [timeRange]);
-
-  const chartData = {
-    labels: data.map(d => d.date),
-    datasets: [
-      {
-        label: 'Redemptions',
-        data: data.map(d => d.count),
-        borderColor: 'rgb(75, 192, 192)',
-        backgroundColor: 'rgba(75, 192, 192, 0.5)',
-      }
-    ]
-  };
-
-  const exportToCSV = () => {
-    const csvContent = "data:text/csv;charset=utf-8," 
-      + "Date,Redemptions\n"
-      + data.map(row => `${row.date},${row.count}`).join("\n");
-    
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "redemption_trends.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
   return (
-    <Card className="p-6">
-      <div className="flex justify-between items-center mb-6">
-        <div className="space-x-4">
-          <Select value={timeRange} onValueChange={setTimeRange}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select time range" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="daily">Daily</SelectItem>
-              <SelectItem value="weekly">Weekly</SelectItem>
-              <SelectItem value="monthly">Monthly</SelectItem>
-            </SelectContent>
-          </Select>
-          
-          <Select value={viewType} onValueChange={setViewType}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select view type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="line">Line Chart</SelectItem>
-              <SelectItem value="bar">Bar Chart</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-        
-        <Button onClick={exportToCSV}>
-          <Download className="mr-2 h-4 w-4" />
-          Export CSV
-        </Button>
-      </div>
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle>Redemption Trends</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Tabs defaultValue="daily" className="space-y-4">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="daily">Daily</TabsTrigger>
+            <TabsTrigger value="weekly">Weekly</TabsTrigger>
+            <TabsTrigger value="monthly">Monthly</TabsTrigger>
+          </TabsList>
 
-      <div className="h-[400px]">
-        {viewType === "line" ? (
-          <Line
-            data={chartData}
-            options={{
-              responsive: true,
-              maintainAspectRatio: false,
-              scales: {
-                y: {
-                  beginAtZero: true
-                }
-              }
-            }}
-          />
-        ) : (
-          <Bar
-            data={chartData}
-            options={{
-              responsive: true,
-              maintainAspectRatio: false,
-              scales: {
-                y: {
-                  beginAtZero: true
-                }
-              }
-            }}
-          />
-        )}
-      </div>
+          <TabsContent value="daily" className="space-y-4">
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={sampleDailyData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" />
+                  <YAxis yAxisId="left" />
+                  <YAxis yAxisId="right" orientation="right" />
+                  <Tooltip />
+                  <Line
+                    yAxisId="left"
+                    type="monotone"
+                    dataKey="redemptions"
+                    stroke="#8884d8"
+                    name="Redemptions"
+                  />
+                  <Line
+                    yAxisId="right"
+                    type="monotone"
+                    dataKey="revenue"
+                    stroke="#82ca9d"
+                    name="Revenue (₹)"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="weekly" className="space-y-4">
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={sampleWeeklyData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" />
+                  <YAxis yAxisId="left" />
+                  <YAxis yAxisId="right" orientation="right" />
+                  <Tooltip />
+                  <Line
+                    yAxisId="left"
+                    type="monotone"
+                    dataKey="redemptions"
+                    stroke="#8884d8"
+                    name="Redemptions"
+                  />
+                  <Line
+                    yAxisId="right"
+                    type="monotone"
+                    dataKey="revenue"
+                    stroke="#82ca9d"
+                    name="Revenue (₹)"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="monthly" className="space-y-4">
+            <div className="h-[300px]">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={sampleMonthlyData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" />
+                  <YAxis yAxisId="left" />
+                  <YAxis yAxisId="right" orientation="right" />
+                  <Tooltip />
+                  <Line
+                    yAxisId="left"
+                    type="monotone"
+                    dataKey="redemptions"
+                    stroke="#8884d8"
+                    name="Redemptions"
+                  />
+                  <Line
+                    yAxisId="right"
+                    type="monotone"
+                    dataKey="revenue"
+                    stroke="#82ca9d"
+                    name="Revenue (₹)"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </CardContent>
     </Card>
   );
 }
