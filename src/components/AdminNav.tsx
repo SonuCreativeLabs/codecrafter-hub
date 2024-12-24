@@ -1,4 +1,4 @@
-import { Tag, Users, TrendingUp, LayoutDashboard, Trophy, Archive, LineChart, Menu, X } from "lucide-react";
+import { Tag, Users, TrendingUp, LayoutDashboard, Trophy, Archive, LineChart, Menu, X, Activity, Settings2, FileSpreadsheet, MapPin, MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
@@ -28,6 +28,11 @@ export function AdminNav({ currentView, setCurrentView }: AdminNavProps) {
       value: "dashboard",
     },
     {
+      title: "Custom Dashboard",
+      icon: Settings2,
+      value: "custom-dashboard",
+    },
+    {
       title: "Promo Codes",
       icon: Tag,
       value: "promo-codes",
@@ -38,24 +43,34 @@ export function AdminNav({ currentView, setCurrentView }: AdminNavProps) {
       value: "agents",
     },
     {
-      title: "Leaderboard",
-      icon: Trophy,
-      value: "leaderboard",
+      title: "Bulk Data",
+      icon: FileSpreadsheet,
+      value: "bulk-data",
     },
     {
-      title: "Redemption Trends",
-      icon: LineChart,
-      value: "redemption-trends",
+      title: "Map View",
+      icon: MapPin,
+      value: "map-view",
     },
     {
-      title: "Archived Data",
-      icon: Archive,
-      value: "archived-data",
+      title: "Agent Feedback",
+      icon: MessageSquare,
+      value: "feedback",
     },
     {
       title: "Reports",
       icon: TrendingUp,
       value: "reports",
+    },
+    {
+      title: "Activity Logs",
+      icon: Activity,
+      value: "activity-logs",
+    },
+    {
+      title: "Archived Data",
+      icon: Archive,
+      value: "archived-data",
     },
   ];
 
