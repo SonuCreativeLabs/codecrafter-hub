@@ -15,6 +15,10 @@ import { AgentFeedbackCollection } from "@/components/AgentFeedbackCollection";
 import { BulkDataManagement } from "@/components/BulkDataManagement";
 import { GeoLocationTracking } from "@/components/GeoLocationTracking";
 import { ActivityLogs } from "@/components/ActivityLogs";
+import { CustomerEngagement } from "@/components/CustomerEngagement";
+import { SeasonalCampaigns } from "@/components/SeasonalCampaigns";
+import { CustomBranding } from "@/components/CustomBranding";
+import { LanguageSettings } from "@/components/LanguageSettings";
 
 const AdminDashboard = () => {
   const [currentView, setCurrentView] = useState("dashboard");
@@ -39,16 +43,20 @@ const AdminDashboard = () => {
         return <GeoLocationTracking />;
       case "feedback":
         return <AgentFeedbackCollection />;
+      case "engagement":
+        return <CustomerEngagement />;
+      case "campaigns":
+        return <SeasonalCampaigns />;
+      case "branding":
+        return <CustomBranding />;
+      case "language":
+        return <LanguageSettings />;
       case "reports":
         return <AdminReports />;
-      case "leaderboard":
-        return <AgentLeaderboard />;
-      case "redemption-trends":
-        return <RedemptionTrends />;
-      case "archived-data":
-        return <ArchivedData />;
       case "activity-logs":
         return <ActivityLogs />;
+      case "archived-data":
+        return <ArchivedData />;
       default:
         return (
           <div className="space-y-6 animate-fadeIn">
