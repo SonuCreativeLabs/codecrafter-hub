@@ -67,4 +67,63 @@
   .card-hover {
     @apply transition-all duration-300 hover:shadow-xl hover:bg-opacity-90;
   }
+
+  /* New animations */
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes scaleIn {
+    from {
+      opacity: 0;
+      transform: scale(0.9);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  /* Enhanced notification styles */
+  .notification-popup {
+    @apply animate-in slide-in fixed top-4 right-4 z-50 max-w-md bg-white rounded-lg shadow-xl p-4;
+  }
+
+  /* Enhanced loading states */
+  .loading-skeleton {
+    @apply animate-pulse bg-gray-200 rounded;
+  }
+
+  /* Enhanced interactive elements */
+  .interactive-element {
+    @apply transition-all duration-200 hover:shadow-md hover:scale-102 active:scale-98;
+  }
+
+  /* Card transitions */
+  .card-transition {
+    @apply transition-all duration-300 ease-in-out;
+  }
+
+  /* Hover underline animation */
+  .hover-underline {
+    @apply relative after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-primary after:scale-x-0 after:origin-bottom-right after:transition-transform after:duration-300 hover:after:scale-x-100 hover:after:origin-bottom-left;
+  }
 }
