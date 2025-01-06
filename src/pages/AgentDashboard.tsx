@@ -7,9 +7,11 @@ import { AgentLeaderboard } from "@/components/AgentLeaderboard";
 import { AgentFeedback } from "@/components/AgentFeedback";
 import { AgentSupport } from "@/components/AgentSupport";
 import { AgentFAQ } from "@/components/AgentFAQ";
+import { AgentCoupons } from "@/components/AgentCoupons";
+import { AgentBilling } from "@/components/AgentBilling";
 import { Button } from "@/components/ui/button";
 import { UserAvatar } from "@/components/UserAvatar";
-import { MessageSquare, HelpCircle, LifeBuoy, ChevronRight } from "lucide-react";
+import { MessageSquare, HelpCircle, LifeBuoy, ChevronRight, Tag, Wallet } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 
@@ -38,6 +40,10 @@ const AgentDashboard = () => {
         return <AgentFeedback agentId="12345" />;
       case 'faq':
         return <AgentFAQ />;
+      case 'coupons':
+        return <AgentCoupons />;
+      case 'billing':
+        return <AgentBilling />;
       default:
         return null;
     }
@@ -76,7 +82,7 @@ const AgentDashboard = () => {
           <AgentLeaderboard />
         </div>
 
-        {/* Support, Feedback, and FAQ Section */}
+        {/* Support, Feedback, FAQ, Coupons, and Billing Section */}
         <Card className="p-6 space-y-6">
           <div className="flex flex-wrap gap-4 justify-center">
             <Button
@@ -102,6 +108,22 @@ const AgentDashboard = () => {
             >
               <HelpCircle className="h-4 w-4" />
               FAQs
+            </Button>
+            <Button
+              variant={activeSection === 'coupons' ? 'default' : 'outline'}
+              className="flex items-center gap-2 hover:scale-105 transition-transform"
+              onClick={() => handleSectionClick('coupons')}
+            >
+              <Tag className="h-4 w-4" />
+              My Coupons
+            </Button>
+            <Button
+              variant={activeSection === 'billing' ? 'default' : 'outline'}
+              className="flex items-center gap-2 hover:scale-105 transition-transform"
+              onClick={() => handleSectionClick('billing')}
+            >
+              <Wallet className="h-4 w-4" />
+              Billing Details
             </Button>
           </div>
 
