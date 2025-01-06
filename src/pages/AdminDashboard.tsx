@@ -110,7 +110,7 @@ const AdminDashboard = () => {
               </Card>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 gap-6">
               <Card className="p-6 glass-card">
                 <h3 className="text-lg font-semibold mb-4">Recent Activities</h3>
                 <ActivityLogs />

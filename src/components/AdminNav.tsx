@@ -28,6 +28,11 @@ export function AdminNav({ currentView, setCurrentView }: AdminNavProps) {
       value: "dashboard",
     },
     {
+      title: "Agent Monitoring",
+      icon: Activity,
+      value: "agent-monitoring",
+    },
+    {
       title: "Promo Codes",
       icon: Tag,
       value: "promo-codes",
