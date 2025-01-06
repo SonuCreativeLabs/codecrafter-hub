@@ -1,4 +1,4 @@
-import { Tag, Users, TrendingUp, LayoutDashboard, Trophy, Archive, LineChart, Menu, X, Activity, Settings2, FileSpreadsheet, MapPin, MessageSquare, Heart, Calendar, Palette, Globe, Settings } from "lucide-react";
+import { Tag, Users, TrendingUp, LayoutDashboard, Trophy, Archive, LineChart, Menu, X, Activity, FileSpreadsheet, MapPin, MessageSquare, Heart, Calendar, Palette } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { useState, useEffect } from "react";
@@ -26,11 +26,6 @@ export function AdminNav({ currentView, setCurrentView }: AdminNavProps) {
       title: "Dashboard",
       icon: LayoutDashboard,
       value: "dashboard",
-    },
-    {
-      title: "Custom Dashboard",
-      icon: Settings2,
-      value: "custom-dashboard",
     },
     {
       title: "Promo Codes",
@@ -73,11 +68,6 @@ export function AdminNav({ currentView, setCurrentView }: AdminNavProps) {
       value: "branding",
     },
     {
-      title: "Language",
-      icon: Globe,
-      value: "language",
-    },
-    {
       title: "Reports",
       icon: TrendingUp,
       value: "reports",
@@ -86,11 +76,6 @@ export function AdminNav({ currentView, setCurrentView }: AdminNavProps) {
       title: "Activity Logs",
       icon: Activity,
       value: "activity-logs",
-    },
-    {
-      title: "Settings",
-      icon: Settings,
-      value: "settings",
     },
     {
       title: "Archived Data",

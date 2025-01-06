@@ -18,7 +18,6 @@ import { ActivityLogs } from "@/components/ActivityLogs";
 import { CustomerEngagement } from "@/components/CustomerEngagement";
 import { SeasonalCampaigns } from "@/components/SeasonalCampaigns";
 import { CustomBranding } from "@/components/CustomBranding";
-import { LanguageSettings } from "@/components/LanguageSettings";
 
 const AdminDashboard = () => {
   const [currentView, setCurrentView] = useState("dashboard");
@@ -49,8 +48,6 @@ const AdminDashboard = () => {
         return <SeasonalCampaigns />;
       case "branding":
         return <CustomBranding />;
-      case "language":
-        return <LanguageSettings />;
       case "reports":
         return <AdminReports />;
       case "activity-logs":
