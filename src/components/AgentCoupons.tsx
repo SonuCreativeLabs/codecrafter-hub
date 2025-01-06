@@ -73,7 +73,7 @@ const getStatusIcon = (status: string) => {
 
 export function AgentCoupons() {
   return (
-    <Card className="w-full mb-6">
+    <Card className="w-full mb-6 bg-white/80 backdrop-blur-sm shadow-lg">
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Tag className="h-5 w-5" />
@@ -86,7 +86,7 @@ export function AgentCoupons() {
             {mockCoupons.map((coupon) => (
               <div
                 key={coupon.code}
-                className="flex flex-col md:flex-row md:items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
+                className="flex flex-col md:flex-row md:items-center justify-between p-4 border rounded-lg hover:bg-gray-50/50 transition-colors"
               >
                 <div className="space-y-2 mb-4 md:mb-0">
                   <div className="flex items-center gap-2">
@@ -109,7 +109,9 @@ export function AgentCoupons() {
                 <div className="space-y-2">
                   <div className="flex items-center justify-between gap-4">
                     <p className="font-medium">Value: ₹{coupon.value}</p>
-                    <p className="font-medium text-green-600">Commission: ₹{coupon.commission}</p>
+                    {coupon.status === 'used' && (
+                      <p className="font-medium text-green-600">Commission: ₹{coupon.commission}</p>
+                    )}
                   </div>
                   {coupon.usedBy && (
                     <div className="text-sm text-muted-foreground">
