@@ -4,16 +4,31 @@ import { AgentReferrals } from "@/components/AgentReferrals";
 import { AgentPerformanceMetrics } from "@/components/AgentPerformanceMetrics";
 import { NotificationBell } from "@/components/NotificationBell";
 import { AgentLeaderboard } from "@/components/AgentLeaderboard";
-import { AgentFeedback } from "@/components/AgentFeedback";
-import { AgentSupport } from "@/components/AgentSupport";
-import { AgentFAQ } from "@/components/AgentFAQ";
 import { AgentCoupons } from "@/components/AgentCoupons";
-import { AgentBilling } from "@/components/AgentBilling";
 import { Button } from "@/components/ui/button";
 import { UserAvatar } from "@/components/UserAvatar";
-import { MessageSquare, HelpCircle, LifeBuoy, ChevronRight, Tag, Wallet } from "lucide-react";
+import {
+  ChevronRight,
+  User,
+  LifeBuoy,
+  MessageSquare,
+  HelpCircle,
+  Wallet
+} from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { AgentProfile } from "@/components/AgentProfile";
+import { AgentSupport } from "@/components/AgentSupport";
+import { AgentFeedback } from "@/components/AgentFeedback";
+import { AgentFAQ } from "@/components/AgentFAQ";
+import { AgentBilling } from "@/components/AgentBilling";
 
 const AgentDashboard = () => {
   const [activeSection, setActiveSection] = useState<string | null>(null);
@@ -32,16 +47,16 @@ const AgentDashboard = () => {
     }
   };
 
-  const renderSupportSection = () => {
+  const renderAccountSection = () => {
     switch (activeSection) {
+      case 'profile':
+        return <AgentProfile agentId="12345" />;
       case 'support':
         return <AgentSupport agentId="12345" />;
       case 'feedback':
         return <AgentFeedback agentId="12345" />;
       case 'faq':
         return <AgentFAQ />;
-      case 'coupons':
-        return <AgentCoupons />;
       case 'billing':
         return <AgentBilling />;
       default:
@@ -62,75 +77,56 @@ const AgentDashboard = () => {
           </div>
           <div className="flex items-center gap-4">
             <NotificationBell userId="12345" />
-            <button
-              onClick={() => navigate('/profile')}
-              className="flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full p-1 transition-colors"
-            >
-              <UserAvatar
-                fallback="JD"
-                size="sm"
-              />
-              <ChevronRight className="h-4 w-4 text-gray-500" />
-            </button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                  <UserAvatar
+                    fallback="JD"
+                    size="sm"
+                  />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-56" align="end" forceMount>
+                <DropdownMenuItem onClick={() => handleSectionClick('profile')}>
+                  <User className="mr-2 h-4 w-4" />
+                  <span>My Profile</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleSectionClick('support')}>
+                  <LifeBuoy className="mr-2 h-4 w-4" />
+                  <span>Support Center</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleSectionClick('feedback')}>
+                  <MessageSquare className="mr-2 h-4 w-4" />
+                  <span>Submit Feedback</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleSectionClick('faq')}>
+                  <HelpCircle className="mr-2 h-4 w-4" />
+                  <span>FAQs</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => handleSectionClick('billing')}>
+                  <Wallet className="mr-2 h-4 w-4" />
+                  <span>Billing Details</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
 
+        {/* Account Section */}
+        {activeSection && (
+          <Card className="w-full animate-in slide-in">
+            {renderAccountSection()}
+          </Card>
+        )}
+
         {/* Main Content */}
         <div className="grid gap-6 grid-cols-1">
+          <AgentCoupons />
           <AgentPerformanceMetrics />
           <AgentReferrals agentId="12345" />
           <AgentLeaderboard />
         </div>
-
-        {/* Support, Feedback, FAQ, Coupons, and Billing Section */}
-        <Card className="p-6 space-y-6">
-          <div className="flex flex-wrap gap-4 justify-center">
-            <Button
-              variant={activeSection === 'support' ? 'default' : 'outline'}
-              className="flex items-center gap-2 hover:scale-105 transition-transform"
-              onClick={() => handleSectionClick('support')}
-            >
-              <LifeBuoy className="h-4 w-4" />
-              Support Center
-            </Button>
-            <Button
-              variant={activeSection === 'feedback' ? 'default' : 'outline'}
-              className="flex items-center gap-2 hover:scale-105 transition-transform"
-              onClick={() => handleSectionClick('feedback')}
-            >
-              <MessageSquare className="h-4 w-4" />
-              Submit Feedback
-            </Button>
-            <Button
-              variant={activeSection === 'faq' ? 'default' : 'outline'}
-              className="flex items-center gap-2 hover:scale-105 transition-transform"
-              onClick={() => handleSectionClick('faq')}
-            >
-              <HelpCircle className="h-4 w-4" />
-              FAQs
-            </Button>
-            <Button
-              variant={activeSection === 'coupons' ? 'default' : 'outline'}
-              className="flex items-center gap-2 hover:scale-105 transition-transform"
-              onClick={() => handleSectionClick('coupons')}
-            >
-              <Tag className="h-4 w-4" />
-              My Coupons
-            </Button>
-            <Button
-              variant={activeSection === 'billing' ? 'default' : 'outline'}
-              className="flex items-center gap-2 hover:scale-105 transition-transform"
-              onClick={() => handleSectionClick('billing')}
-            >
-              <Wallet className="h-4 w-4" />
-              Billing Details
-            </Button>
-          </div>
-
-          <div className="mt-6 animate-fadeIn">
-            {renderSupportSection()}
-          </div>
-        </Card>
       </div>
     </div>
   );
