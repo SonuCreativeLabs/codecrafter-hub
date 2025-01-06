@@ -37,7 +37,19 @@
   }
 
   .glass-card {
-    @apply bg-card/80 backdrop-blur-sm border border-white/10 shadow-lg;
+    @apply bg-card/80 backdrop-blur-sm border border-white/10 shadow-xl;
+  }
+
+  .popup-shadow {
+    @apply shadow-[0_8px_30px_rgb(0,0,0,0.12)] backdrop-blur-sm;
+  }
+
+  .dropdown-content {
+    @apply popup-shadow bg-white/95 dark:bg-gray-800/95 border border-gray-200 dark:border-gray-700;
+  }
+
+  .modal-content {
+    @apply popup-shadow bg-white/95 dark:bg-gray-800/95 border border-gray-200 dark:border-gray-700 rounded-lg;
   }
 
   .animate-in {

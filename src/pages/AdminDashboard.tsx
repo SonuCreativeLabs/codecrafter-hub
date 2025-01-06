@@ -18,9 +18,12 @@ import { ActivityLogs } from "@/components/ActivityLogs";
 import { CustomerEngagement } from "@/components/CustomerEngagement";
 import { SeasonalCampaigns } from "@/components/SeasonalCampaigns";
 import { CustomBranding } from "@/components/CustomBranding";
+import { AgentMonitoring } from "@/components/AgentMonitoring";
+import { useToast } from "@/hooks/use-toast";
 
 const AdminDashboard = () => {
   const [currentView, setCurrentView] = useState("dashboard");
+  const { toast } = useToast();
   const [agents] = useState([
     { id: 1, name: "John Doe", codes: 12, redemptions: 45, performance: "High" },
     { id: 2, name: "Jane Smith", codes: 8, redemptions: 32, performance: "Medium" },
@@ -28,8 +31,17 @@ const AdminDashboard = () => {
     { id: 4, name: "Sarah Williams", codes: 10, redemptions: 28, performance: "Medium" },
   ]);
 
+  const handleCreateCampaign = () => {
+    toast({
+      title: "Campaign Created",
+      description: "New campaign has been created successfully.",
+    });
+  };
+
   const renderContent = () => {
     switch (currentView) {
+      case "agent-monitoring":
+        return <AgentMonitoring />;
       case "custom-dashboard":
         return <CustomizableDashboard />;
       case "promo-codes":
@@ -58,7 +70,8 @@ const AdminDashboard = () => {
         return (
           <div className="space-y-6 animate-fadeIn">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Card className="p-6 hover:shadow-lg transition-all duration-300 cursor-pointer" onClick={() => setCurrentView("promo-codes")}>
+              <Card className="p-6 hover:shadow-lg transition-all duration-300 glass-card cursor-pointer" 
+                    onClick={() => setCurrentView("promo-codes")}>
                 <div className="flex items-center space-x-4">
                   <div className="p-3 bg-blue-100 rounded-lg">
                     <Tag className="h-10 w-10 text-blue-600" />
@@ -70,7 +83,8 @@ const AdminDashboard = () => {
                 </div>
               </Card>
 
-              <Card className="p-6 hover:shadow-lg transition-all duration-300 cursor-pointer" onClick={() => setCurrentView("agents")}>
+              <Card className="p-6 hover:shadow-lg transition-all duration-300 glass-card cursor-pointer" 
+                    onClick={() => setCurrentView("agents")}>
                 <div className="flex items-center space-x-4">
                   <div className="p-3 bg-green-100 rounded-lg">
                     <Users className="h-10 w-10 text-green-600" />
@@ -82,7 +96,8 @@ const AdminDashboard = () => {
                 </div>
               </Card>
 
-              <Card className="p-6 hover:shadow-lg transition-all duration-300 cursor-pointer" onClick={() => setCurrentView("activity-logs")}>
+              <Card className="p-6 hover:shadow-lg transition-all duration-300 glass-card cursor-pointer" 
+                    onClick={() => setCurrentView("activity-logs")}>
                 <div className="flex items-center space-x-4">
                   <div className="p-3 bg-purple-100 rounded-lg">
                     <Activity className="h-10 w-10 text-purple-600" />
@@ -96,11 +111,11 @@ const AdminDashboard = () => {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card className="p-6">
+              <Card className="p-6 glass-card">
                 <h3 className="text-lg font-semibold mb-4">Recent Activities</h3>
                 <ActivityLogs />
               </Card>
-              <Card className="p-6">
+              <Card className="p-6 glass-card">
                 <h3 className="text-lg font-semibold mb-4">Agent Performance</h3>
                 <AgentLeaderboard />
               </Card>
@@ -117,9 +132,12 @@ const AdminDashboard = () => {
           <h1 className="text-3xl font-bold">Admin Dashboard</h1>
           <div className="flex items-center space-x-4">
             <NotificationBell userId="admin" />
-            <Button onClick={() => setCurrentView("promo-codes")} className="flex items-center space-x-2">
+            <Button 
+              onClick={handleCreateCampaign} 
+              className="flex items-center space-x-2 hover:shadow-lg transition-all duration-300"
+            >
               <PlusCircle className="h-4 w-4" />
-              <span>Generate Codes</span>
+              <span>Create Campaign</span>
             </Button>
           </div>
         </div>
