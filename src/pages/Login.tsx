@@ -3,18 +3,22 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/components/ui/use-toast";
+import { Card } from "@/components/ui/card";
+import { useToast } from "@/hooks/use-toast";
 import { auth, db } from "@/lib/firebase";
 import { signInWithEmailAndPassword, signInWithPhoneNumber, RecaptchaVerifier } from "firebase/auth";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { collection, getDocs, query, where } from "firebase/firestore";
+import { Mail, Lock, Phone, User, ArrowRight, Loader2 } from "lucide-react";
+import { ForgotPasswordForm } from "@/components/auth/ForgotPasswordForm";
 
 const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
   const [showOTP, setShowOTP] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [loginType, setLoginType] = useState<"admin" | "agent">("admin");
   const [otp, setOTP] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [agentPassword, setAgentPassword] = useState("");
@@ -26,12 +30,12 @@ const Login = () => {
     setIsLoading(true);
     
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      await signInWithEmailAndPassword(auth, email, password);
+      setShowOTP(true);
       toast({
         title: "Success",
-        description: "Welcome back, admin!",
+        description: "Please verify OTP to continue.",
       });
-      navigate("/admin");
     } catch (error: any) {
       toast({
         title: "Error",
@@ -83,13 +87,11 @@ const Login = () => {
         return;
       }
 
-      // Initialize reCAPTCHA verifier
       const recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
         size: 'invisible',
       });
 
       const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, recaptchaVerifier);
-      // Store confirmation result to verify OTP later
       (window as any).confirmationResult = confirmationResult;
       setShowOTP(true);
       toast({
@@ -111,12 +113,12 @@ const Login = () => {
     setIsLoading(true);
     try {
       const confirmationResult = (window as any).confirmationResult;
-      const result = await confirmationResult.confirm(otp);
+      await confirmationResult.confirm(otp);
       toast({
         title: "Success",
-        description: "Welcome back, agent!",
+        description: `Welcome back, ${loginType}!`,
       });
-      navigate("/agent");
+      navigate(loginType === "admin" ? "/admin" : "/agent");
     } catch (error: any) {
       toast({
         title: "Error",
@@ -128,124 +130,159 @@ const Login = () => {
     }
   };
 
+  if (showForgotPassword) {
+    return <ForgotPasswordForm onBack={() => setShowForgotPassword(false)} />;
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary to-primary/90 p-4">
-      <div className="w-full max-w-md animate-in">
-        <div className="text-center mb-8">
+      <div className="w-full max-w-md space-y-8 animate-in fade-in slide-in-from-bottom-4">
+        <div className="text-center">
           <h1 className="text-3xl font-bold text-white mb-2">CodeCrafter</h1>
           <p className="text-primary-foreground/80">Welcome back</p>
         </div>
 
-        <div className="glass-card rounded-lg p-6">
-          <Tabs defaultValue="admin" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="admin">Admin</TabsTrigger>
-              <TabsTrigger value="agent">Agent</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="admin">
-              <form onSubmit={handleAdminLogin} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input 
-                    id="email" 
-                    type="email" 
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required 
-                    className="transition-all duration-200 hover:border-accent focus:border-accent"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
-                  <Input 
-                    id="password" 
-                    type="password" 
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required 
-                    className="transition-all duration-200 hover:border-accent focus:border-accent"
-                  />
-                </div>
-                <Button 
-                  type="submit" 
-                  className="w-full transition-all duration-200 hover:bg-accent active:scale-95" 
-                  disabled={isLoading}
+        <Card className="p-6 glass-card">
+          {!showOTP ? (
+            <>
+              <div className="flex gap-2 mb-6">
+                <Button
+                  variant={loginType === "admin" ? "default" : "outline"}
+                  className="flex-1"
+                  onClick={() => setLoginType("admin")}
                 >
-                  {isLoading ? "Signing in..." : "Sign in"}
+                  <User className="mr-2 h-4 w-4" />
+                  Admin
                 </Button>
-              </form>
-            </TabsContent>
+                <Button
+                  variant={loginType === "agent" ? "default" : "outline"}
+                  className="flex-1"
+                  onClick={() => setLoginType("agent")}
+                >
+                  <Phone className="mr-2 h-4 w-4" />
+                  Agent
+                </Button>
+              </div>
 
-            <TabsContent value="agent">
-              <form onSubmit={handleAgentLogin} className="space-y-4">
-                {!showOTP ? (
+              <form onSubmit={loginType === "admin" ? handleAdminLogin : handleAgentLogin} className="space-y-4">
+                {loginType === "admin" ? (
                   <>
                     <div className="space-y-2">
-                      <Label htmlFor="mobile">Mobile Number</Label>
-                      <Input 
-                        id="mobile" 
-                        type="tel" 
-                        value={phoneNumber}
-                        onChange={(e) => setPhoneNumber(e.target.value)}
-                        placeholder="+91XXXXXXXXXX"
-                        required 
-                        className="transition-all duration-200 hover:border-accent focus:border-accent"
-                      />
+                      <Label>Email</Label>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          type="email"
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          className="pl-9"
+                          placeholder="Enter your email"
+                          required
+                        />
+                      </div>
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="agentPassword">Password</Label>
-                      <Input 
-                        id="agentPassword" 
-                        type="password" 
-                        value={agentPassword}
-                        onChange={(e) => setAgentPassword(e.target.value)}
-                        required 
-                        className="transition-all duration-200 hover:border-accent focus:border-accent"
-                      />
+                      <Label>Password</Label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          type="password"
+                          value={password}
+                          onChange={(e) => setPassword(e.target.value)}
+                          className="pl-9"
+                          placeholder="Enter your password"
+                          required
+                        />
+                      </div>
                     </div>
-                    <Button 
-                      type="submit" 
-                      className="w-full transition-all duration-200 hover:bg-accent active:scale-95" 
-                      disabled={isLoading}
-                    >
-                      {isLoading ? "Verifying..." : "Send OTP"}
-                    </Button>
                   </>
                 ) : (
-                  <div className="space-y-4">
-                    <Label>Enter OTP</Label>
-                    <InputOTP
-                      value={otp}
-                      onChange={(value) => setOTP(value)}
-                      maxLength={6}
-                      render={({ slots }) => (
-                        <InputOTPGroup className="gap-2">
-                          {slots.map((slot, idx) => (
-                            <InputOTPSlot 
-                              key={idx} 
-                              {...slot} 
-                              index={idx}
-                              className="transition-all duration-200 hover:border-accent focus:border-accent" 
-                            />
-                          ))}
-                        </InputOTPGroup>
-                      )}
-                    />
-                    <Button 
-                      type="button" 
-                      className="w-full transition-all duration-200 hover:bg-accent active:scale-95" 
-                      onClick={verifyOTP}
-                      disabled={isLoading || otp.length !== 6}
-                    >
-                      {isLoading ? "Verifying..." : "Verify OTP"}
-                    </Button>
-                  </div>
+                  <>
+                    <div className="space-y-2">
+                      <Label>Phone Number</Label>
+                      <div className="relative">
+                        <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          type="tel"
+                          value={phoneNumber}
+                          onChange={(e) => setPhoneNumber(e.target.value)}
+                          className="pl-9"
+                          placeholder="+91XXXXXXXXXX"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Password</Label>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          type="password"
+                          value={agentPassword}
+                          onChange={(e) => setAgentPassword(e.target.value)}
+                          className="pl-9"
+                          placeholder="Enter your password"
+                          required
+                        />
+                      </div>
+                    </div>
+                  </>
                 )}
+
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={isLoading}
+                >
+                  {isLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <>
+                      Continue
+                      <ArrowRight className="ml-2 h-4 w-4" />
+                    </>
+                  )}
+                </Button>
+
+                <Button
+                  type="button"
+                  variant="link"
+                  className="w-full"
+                  onClick={() => setShowForgotPassword(true)}
+                >
+                  Forgot Password?
+                </Button>
               </form>
-            </TabsContent>
-          </Tabs>
-        </div>
+            </>
+          ) : (
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold text-center mb-4">Enter OTP</h3>
+              <InputOTP
+                value={otp}
+                onChange={(value) => setOTP(value)}
+                maxLength={6}
+                render={({ slots }) => (
+                  <InputOTPGroup className="gap-2 justify-center">
+                    {slots.map((slot, idx) => (
+                      <InputOTPSlot key={idx} {...slot} />
+                    ))}
+                  </InputOTPGroup>
+                )}
+              />
+              <Button
+                onClick={verifyOTP}
+                disabled={isLoading || otp.length !== 6}
+                className="w-full"
+              >
+                {isLoading ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  "Verify OTP"
+                )}
+              </Button>
+            </div>
+          )}
+        </Card>
       </div>
       <div id="recaptcha-container"></div>
     </div>
