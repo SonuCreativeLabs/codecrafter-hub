@@ -7,7 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { auth, db } from "@/lib/firebase";
 import { signInWithEmailAndPassword, signInWithPhoneNumber, RecaptchaVerifier } from "firebase/auth";
 import { collection, getDocs, query, where } from "firebase/firestore";
-import { Mail, Lock, Phone, Loader2 } from "lucide-react";
+import { Mail, Lock, Phone, Loader2, ArrowRight } from "lucide-react";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 
 export function LoginForm({ onForgotPassword }: { onForgotPassword: () => void }) {
@@ -100,18 +100,18 @@ export function LoginForm({ onForgotPassword }: { onForgotPassword: () => void }
       {!showOTP ? (
         <form onSubmit={handleLogin} className="space-y-4">
           <div className="space-y-2">
-            <Label>Email or Phone Number</Label>
-            <div className="relative">
+            <Label className="text-sm font-medium">Email or Phone Number</Label>
+            <div className="relative group">
               {isEmail(identifier) ? (
-                <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground transition-colors group-hover:text-primary" />
               ) : (
-                <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground transition-colors group-hover:text-primary" />
               )}
               <Input
                 type={isEmail(identifier) ? "email" : "tel"}
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
-                className="pl-9"
+                className="pl-9 h-12 bg-white/50 dark:bg-gray-950/50 border-white/20 backdrop-blur-sm transition-all hover:bg-white/60 dark:hover:bg-gray-950/60 focus:bg-white/80 dark:focus:bg-gray-950/80"
                 placeholder="Enter email or phone number"
                 required
               />
@@ -119,14 +119,14 @@ export function LoginForm({ onForgotPassword }: { onForgotPassword: () => void }
           </div>
 
           <div className="space-y-2">
-            <Label>Password</Label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+            <Label className="text-sm font-medium">Password</Label>
+            <div className="relative group">
+              <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground transition-colors group-hover:text-primary" />
               <Input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="pl-9"
+                className="pl-9 h-12 bg-white/50 dark:bg-gray-950/50 border-white/20 backdrop-blur-sm transition-all hover:bg-white/60 dark:hover:bg-gray-950/60 focus:bg-white/80 dark:focus:bg-gray-950/80"
                 placeholder="Enter your password"
                 required
               />
@@ -135,51 +135,70 @@ export function LoginForm({ onForgotPassword }: { onForgotPassword: () => void }
 
           <Button
             type="submit"
-            className="w-full"
+            className="w-full h-12 bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity"
             disabled={isLoading}
           >
             {isLoading ? (
               <Loader2 className="h-4 w-4 animate-spin" />
             ) : (
-              "Continue"
+              <>
+                Continue
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </>
             )}
           </Button>
 
           <Button
             type="button"
             variant="link"
-            className="w-full"
+            className="w-full text-sm hover:text-accent transition-colors"
             onClick={onForgotPassword}
           >
             Forgot Password?
           </Button>
         </form>
       ) : (
-        <div className="space-y-4">
-          <h3 className="text-lg font-semibold text-center mb-4">Enter OTP</h3>
-          <InputOTP
-            value={otp}
-            onChange={(value) => setOTP(value)}
-            maxLength={6}
-            render={({ slots }) => (
-              <InputOTPGroup className="gap-2 justify-center">
-                {slots.map((slot, idx) => (
-                  <InputOTPSlot key={idx} {...slot} index={idx} />
-                ))}
-              </InputOTPGroup>
-            )}
-          />
-          <Button
-            onClick={verifyOTP}
-            disabled={isLoading || otp.length !== 6}
-            className="w-full"
-          >
-            {isLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              "Verify OTP"
-            )}
-          </Button>
+        <div className="space-y-6">
+          <div className="text-center space-y-2">
+            <h3 className="text-lg font-semibold">Enter OTP</h3>
+            <p className="text-sm text-muted-foreground">
+              Please enter the verification code sent to your {isEmail(identifier) ? "email" : "phone"}
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            <InputOTP
+              value={otp}
+              onChange={(value) => setOTP(value)}
+              maxLength={6}
+              render={({ slots }) => (
+                <InputOTPGroup className="gap-2 justify-center">
+                  {slots.map((slot, idx) => (
+                    <InputOTPSlot
+                      key={idx}
+                      {...slot}
+                      className="h-12 w-12 text-lg bg-white/50 dark:bg-gray-950/50 border-white/20 backdrop-blur-sm transition-all"
+                    />
+                  ))}
+                </InputOTPGroup>
+              )}
+            />
+
+            <Button
+              onClick={verifyOTP}
+              disabled={isLoading || otp.length !== 6}
+              className="w-full h-12 bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity"
+            >
+              {isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <>
+                  Verify OTP
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </>
+              )}
+            </Button>
+          </div>
         </div>
       )}
       <div id="recaptcha-container"></div>

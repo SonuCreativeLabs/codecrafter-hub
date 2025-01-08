@@ -58,28 +58,37 @@ export function ForgotPasswordForm({ onBack }: { onBack: () => void }) {
     <div className="animate-in fade-in slide-in-from-right">
       <Button 
         variant="ghost" 
-        className="mb-4" 
+        className="mb-6 text-muted-foreground hover:text-primary transition-colors" 
         onClick={onBack}
       >
         <ArrowRight className="mr-2 h-4 w-4 rotate-180" />
         Back to Login
       </Button>
 
-      <Card className="p-6">
-        <h2 className="text-2xl font-bold mb-6">Reset Password</h2>
+      <div className="space-y-6">
+        <div className="text-center space-y-2">
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            Reset Password
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            {step === "email" && "Enter your email to receive a reset code"}
+            {step === "code" && "Enter the code sent to your email"}
+            {step === "reset" && "Create a new password"}
+          </p>
+        </div>
 
         {step === "email" && (
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Email Address</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Label className="text-sm font-medium">Email Address</Label>
+              <div className="relative group">
+                <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground transition-colors group-hover:text-primary" />
                 <Input
                   type="email"
                   placeholder="Enter your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="pl-9"
+                  className="pl-9 h-12 bg-white/50 dark:bg-gray-950/50 border-white/20 backdrop-blur-sm transition-all hover:bg-white/60 dark:hover:bg-gray-950/60 focus:bg-white/80 dark:focus:bg-gray-950/80"
                 />
               </div>
             </div>
@@ -87,7 +96,7 @@ export function ForgotPasswordForm({ onBack }: { onBack: () => void }) {
             <Button
               onClick={handleSendCode}
               disabled={loading || !email}
-              className="w-full"
+              className="w-full h-12 bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity"
             >
               {loading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -104,20 +113,21 @@ export function ForgotPasswordForm({ onBack }: { onBack: () => void }) {
         {step === "code" && (
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>Verification Code</Label>
+              <Label className="text-sm font-medium">Verification Code</Label>
               <Input
                 type="text"
                 placeholder="Enter 6-digit code"
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
                 maxLength={6}
+                className="h-12 bg-white/50 dark:bg-gray-950/50 border-white/20 backdrop-blur-sm text-center text-lg tracking-widest"
               />
             </div>
 
             <Button
               onClick={handleVerifyCode}
               disabled={loading || code.length !== 6}
-              className="w-full"
+              className="w-full h-12 bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity"
             >
               {loading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -134,29 +144,29 @@ export function ForgotPasswordForm({ onBack }: { onBack: () => void }) {
         {step === "reset" && (
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label>New Password</Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Label className="text-sm font-medium">New Password</Label>
+              <div className="relative group">
+                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground transition-colors group-hover:text-primary" />
                 <Input
                   type="password"
                   placeholder="Enter new password"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  className="pl-9"
+                  className="pl-9 h-12 bg-white/50 dark:bg-gray-950/50 border-white/20 backdrop-blur-sm transition-all hover:bg-white/60 dark:hover:bg-gray-950/60 focus:bg-white/80 dark:focus:bg-gray-950/80"
                 />
               </div>
             </div>
 
             <div className="space-y-2">
-              <Label>Confirm Password</Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+              <Label className="text-sm font-medium">Confirm Password</Label>
+              <div className="relative group">
+                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground transition-colors group-hover:text-primary" />
                 <Input
                   type="password"
                   placeholder="Confirm new password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="pl-9"
+                  className="pl-9 h-12 bg-white/50 dark:bg-gray-950/50 border-white/20 backdrop-blur-sm transition-all hover:bg-white/60 dark:hover:bg-gray-950/60 focus:bg-white/80 dark:focus:bg-gray-950/80"
                 />
               </div>
             </div>
@@ -164,7 +174,7 @@ export function ForgotPasswordForm({ onBack }: { onBack: () => void }) {
             <Button
               onClick={handleResetPassword}
               disabled={loading || !newPassword || !confirmPassword}
-              className="w-full"
+              className="w-full h-12 bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity"
             >
               {loading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -174,7 +184,7 @@ export function ForgotPasswordForm({ onBack }: { onBack: () => void }) {
             </Button>
           </div>
         )}
-      </Card>
+      </div>
     </div>
   );
 }
