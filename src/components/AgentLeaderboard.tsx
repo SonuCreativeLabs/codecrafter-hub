@@ -12,9 +12,20 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Trophy, Medal, Star, TrendingUp, Crown } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
-const sampleLeaderboardData = [
+interface Agent {
+  id: string;
+  name: string;
+  avatar: string;
+  redemptions: number;
+  revenue: number;
+  status: string;
+  trend: 'up' | 'stable' | 'down';
+  performance: number;
+}
+
+const sampleLeaderboardData: Agent[] = [
   {
-    id: 1,
+    id: "1",
     name: "Rahul Kumar",
     avatar: "/avatars/rahul.jpg",
     redemptions: 156,
@@ -74,7 +85,7 @@ const getRankIcon = (rank: number) => {
     case 3:
       return <Medal className="h-5 w-5 text-amber-600" />;
     default:
-      return <Star className="h-5 w-5 text-blue-500" />;
+      return <span className="font-bold text-gray-600">#{rank}</span>;
   }
 };
 
@@ -95,7 +106,7 @@ export function AgentLeaderboard() {
   const { user } = useAuth();
 
   const getLoggedInAgentRank = () => {
-    return sampleLeaderboardData.findIndex(agent => agent.id === user?.id) + 1;
+    return sampleLeaderboardData.findIndex(agent => agent.id === user?.id) + 1 || '-';
   };
 
   return (
@@ -109,7 +120,10 @@ export function AgentLeaderboard() {
             </CardTitle>
           </div>
           {user && (
-            <Badge className="bg-primary/10 text-primary hover:bg-primary/20 transition-colors">
+            <Badge 
+              variant="outline"
+              className="bg-primary/10 text-primary hover:bg-primary/20 transition-colors px-4 py-1"
+            >
               Your Rank: #{getLoggedInAgentRank()}
             </Badge>
           )}
@@ -137,7 +151,7 @@ export function AgentLeaderboard() {
                     ${agent.id === user?.id ? 'bg-blue-50/50' : ''}
                   `}
                 >
-                  <TableCell className="text-center">
+                  <TableCell className="text-center font-medium">
                     <div className="flex items-center justify-center">
                       {getRankIcon(index + 1)}
                     </div>
@@ -145,7 +159,7 @@ export function AgentLeaderboard() {
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <Avatar className="h-10 w-10 border-2 border-white shadow-sm">
-                        <AvatarImage src={agent.avatar} />
+                        <AvatarImage src={agent.avatar} alt={agent.name} />
                         <AvatarFallback className="bg-primary text-primary-foreground">
                           {agent.name.slice(0, 2)}
                         </AvatarFallback>

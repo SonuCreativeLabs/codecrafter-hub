@@ -88,11 +88,10 @@ const AgentDashboard = () => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent 
-                className="w-56 mt-2 p-2" 
                 align="end" 
                 forceMount
                 sideOffset={5}
-                className="shadow-lg shadow-primary/10 border border-primary/20 bg-white/95 backdrop-blur-sm"
+                className="w-56 mt-2 p-2 shadow-lg shadow-primary/10 border border-primary/20 bg-white/95 backdrop-blur-sm"
               >
                 <DropdownMenuItem onClick={() => handleSectionClick('profile')} className="hover:bg-primary/5">
                   <User className="mr-2 h-4 w-4 text-primary" />
@@ -120,7 +119,6 @@ const AgentDashboard = () => {
           </div>
         </div>
 
-        {/* Account Section */}
         {activeSection && (
           <Card className="w-full animate-in slide-in bg-white/80 backdrop-blur-sm shadow-lg">
             {renderAccountSection()}
