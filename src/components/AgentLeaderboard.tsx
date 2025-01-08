@@ -9,6 +9,8 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Trophy, Medal, Star, TrendingUp, Crown } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 
 const sampleLeaderboardData = [
   {
@@ -19,6 +21,7 @@ const sampleLeaderboardData = [
     revenue: 78000,
     status: "Elite",
     trend: "up",
+    performance: 98,
   },
   {
     id: 2,
@@ -28,6 +31,7 @@ const sampleLeaderboardData = [
     revenue: 71000,
     status: "Elite",
     trend: "up",
+    performance: 95,
   },
   {
     id: 3,
@@ -37,6 +41,7 @@ const sampleLeaderboardData = [
     revenue: 64000,
     status: "Pro",
     trend: "stable",
+    performance: 92,
   },
   {
     id: 4,
@@ -46,6 +51,7 @@ const sampleLeaderboardData = [
     revenue: 57500,
     status: "Pro",
     trend: "up",
+    performance: 88,
   },
   {
     id: 5,
@@ -55,55 +61,117 @@ const sampleLeaderboardData = [
     revenue: 49000,
     status: "Rising",
     trend: "up",
+    performance: 85,
   },
 ];
 
+const getRankIcon = (rank: number) => {
+  switch (rank) {
+    case 1:
+      return <Trophy className="h-5 w-5 text-yellow-500" />;
+    case 2:
+      return <Medal className="h-5 w-5 text-gray-400" />;
+    case 3:
+      return <Medal className="h-5 w-5 text-amber-600" />;
+    default:
+      return <Star className="h-5 w-5 text-blue-500" />;
+  }
+};
+
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case "Elite":
+      return "bg-gradient-to-r from-purple-500 to-pink-500 text-white";
+    case "Pro":
+      return "bg-gradient-to-r from-blue-500 to-cyan-500 text-white";
+    case "Rising":
+      return "bg-gradient-to-r from-green-500 to-emerald-500 text-white";
+    default:
+      return "bg-gray-100 text-gray-800";
+  }
+};
+
 export function AgentLeaderboard() {
+  const { user } = useAuth();
+
+  const getLoggedInAgentRank = () => {
+    return sampleLeaderboardData.findIndex(agent => agent.id === user?.id) + 1;
+  };
+
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle>Top Performing Agents</CardTitle>
+    <Card className="w-full bg-white/80 backdrop-blur-sm shadow-xl hover:shadow-2xl transition-all duration-300">
+      <CardHeader className="space-y-1">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Crown className="h-6 w-6 text-yellow-500" />
+            <CardTitle className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+              Top Performing Agents
+            </CardTitle>
+          </div>
+          {user && (
+            <Badge className="bg-primary/10 text-primary hover:bg-primary/20 transition-colors">
+              Your Rank: #{getLoggedInAgentRank()}
+            </Badge>
+          )}
+        </div>
       </CardHeader>
       <CardContent>
         <div className="overflow-x-auto">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead className="w-[50px]">Rank</TableHead>
+              <TableRow className="hover:bg-gray-50/50">
+                <TableHead className="w-[60px] text-center">Rank</TableHead>
                 <TableHead>Agent</TableHead>
                 <TableHead className="text-right">Redemptions</TableHead>
                 <TableHead className="text-right hidden md:table-cell">Revenue</TableHead>
+                <TableHead className="text-center">Performance</TableHead>
                 <TableHead className="text-center">Status</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {sampleLeaderboardData.map((agent, index) => (
-                <TableRow key={agent.id}>
-                  <TableCell className="font-medium">{index + 1}</TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={agent.avatar} />
-                        <AvatarFallback>{agent.name.slice(0, 2)}</AvatarFallback>
-                      </Avatar>
-                      <span className="hidden md:inline">{agent.name}</span>
-                      <span className="md:hidden">{agent.name.split(' ')[0]}</span>
+                <TableRow 
+                  key={agent.id}
+                  className={`
+                    hover:bg-gray-50/50 transition-colors
+                    ${agent.id === user?.id ? 'bg-blue-50/50' : ''}
+                  `}
+                >
+                  <TableCell className="text-center">
+                    <div className="flex items-center justify-center">
+                      {getRankIcon(index + 1)}
                     </div>
                   </TableCell>
-                  <TableCell className="text-right">{agent.redemptions}</TableCell>
-                  <TableCell className="text-right hidden md:table-cell">
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-10 w-10 border-2 border-white shadow-sm">
+                        <AvatarImage src={agent.avatar} />
+                        <AvatarFallback className="bg-primary text-primary-foreground">
+                          {agent.name.slice(0, 2)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div>
+                        <p className="font-semibold">{agent.name}</p>
+                        <p className="text-sm text-gray-500">
+                          {agent.trend === "up" ? "↗" : "→"} Trending {agent.trend}
+                        </p>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-right font-medium">
+                    {agent.redemptions}
+                  </TableCell>
+                  <TableCell className="text-right hidden md:table-cell font-medium">
                     ₹{agent.revenue.toLocaleString()}
                   </TableCell>
                   <TableCell className="text-center">
-                    <Badge
-                      variant={
-                        agent.status === "Elite"
-                          ? "default"
-                          : agent.status === "Pro"
-                          ? "secondary"
-                          : "outline"
-                      }
-                    >
+                    <div className="flex items-center justify-center gap-1">
+                      <TrendingUp className="h-4 w-4 text-green-500" />
+                      <span className="font-semibold">{agent.performance}%</span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <Badge className={`${getStatusColor(agent.status)}`}>
                       {agent.status}
                     </Badge>
                   </TableCell>
