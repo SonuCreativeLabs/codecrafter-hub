@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import { Button } from "@/components/ui/button";
+import "leaflet/dist/leaflet.css";
 
 interface DateRange {
   from: Date;
@@ -18,9 +19,9 @@ export function GeoLocationTracking() {
   };
 
   const locations = [
-    { id: 1, position: [51.505, -0.09], name: "Location 1" },
-    { id: 2, position: [51.51, -0.1], name: "Location 2" },
-    { id: 3, position: [51.51, -0.12], name: "Location 3" },
+    { id: 1, position: [51.505, -0.09] as [number, number], name: "Location 1" },
+    { id: 2, position: [51.51, -0.1] as [number, number], name: "Location 2" },
+    { id: 3, position: [51.51, -0.12] as [number, number], name: "Location 3" },
   ];
 
   return (

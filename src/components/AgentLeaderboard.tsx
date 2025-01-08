@@ -35,7 +35,7 @@ const sampleLeaderboardData: Agent[] = [
     performance: 98,
   },
   {
-    id: 2,
+    id: "2",
     name: "Priya Singh",
     avatar: "/avatars/priya.jpg",
     redemptions: 142,
@@ -45,7 +45,7 @@ const sampleLeaderboardData: Agent[] = [
     performance: 95,
   },
   {
-    id: 3,
+    id: "3",
     name: "Amit Patel",
     avatar: "/avatars/amit.jpg",
     redemptions: 128,
@@ -55,7 +55,7 @@ const sampleLeaderboardData: Agent[] = [
     performance: 92,
   },
   {
-    id: 4,
+    id: "4",
     name: "Deepa Sharma",
     avatar: "/avatars/deepa.jpg",
     redemptions: 115,
@@ -65,7 +65,7 @@ const sampleLeaderboardData: Agent[] = [
     performance: 88,
   },
   {
-    id: 5,
+    id: "5",
     name: "Vikram Malhotra",
     avatar: "/avatars/vikram.jpg",
     redemptions: 98,
@@ -106,7 +106,8 @@ export function AgentLeaderboard() {
   const { user } = useAuth();
 
   const getLoggedInAgentRank = () => {
-    return sampleLeaderboardData.findIndex(agent => agent.id === user?.id) + 1 || '-';
+    if (!user?.uid) return '-';
+    return sampleLeaderboardData.findIndex(agent => agent.id === user.uid) + 1 || '-';
   };
 
   return (
@@ -148,7 +149,7 @@ export function AgentLeaderboard() {
                   key={agent.id}
                   className={`
                     hover:bg-gray-50/50 transition-colors
-                    ${agent.id === user?.id ? 'bg-blue-50/50' : ''}
+                    ${agent.id === user?.uid ? 'bg-blue-50/50' : ''}
                   `}
                 >
                   <TableCell className="text-center font-medium">
