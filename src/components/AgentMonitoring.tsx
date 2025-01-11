@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -58,6 +58,27 @@ const mockAgents = [
 ];
 
 export function AgentMonitoring() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [performanceFilter, setPerformanceFilter] = useState("all");
+
+  const filteredAgents = mockAgents.filter(agent => {
+    const matchesSearch = agent.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         agent.area.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    if (!matchesSearch) return false;
+
+    switch (performanceFilter) {
+      case "high":
+        return agent.redemptionRate >= 80;
+      case "medium":
+        return agent.redemptionRate >= 60 && agent.redemptionRate < 80;
+      case "low":
+        return agent.redemptionRate < 60;
+      default:
+        return true;
+    }
+  });
+
   return (
     <div className="p-6">
       <Card className="p-6">
@@ -67,13 +88,19 @@ export function AgentMonitoring() {
           <div className="flex flex-wrap gap-4">
             <Input
               placeholder="Search agents..."
-              className="w-[200px]"
+              className="w-[200px] bg-background border-white/20 transition-all hover:border-accent focus:ring-2 focus:ring-blue-500"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
-            <Select defaultValue="all">
-              <SelectTrigger className="w-[180px]">
+            <Select 
+              defaultValue="all" 
+              onValueChange={setPerformanceFilter}
+              value={performanceFilter}
+            >
+              <SelectTrigger className="w-[180px] bg-background border-white/20 transition-all hover:border-accent focus:ring-2 focus:ring-blue-500">
                 <SelectValue placeholder="Filter by Performance" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-background/95 backdrop-blur-sm border border-white/20 shadow-lg rounded-lg p-1">
                 <SelectItem value="all">All Agents</SelectItem>
                 <SelectItem value="high">High Performers</SelectItem>
                 <SelectItem value="medium">Medium Performers</SelectItem>
@@ -95,7 +122,7 @@ export function AgentMonitoring() {
               <div>
                 <h3 className="font-semibold">Average Performance</h3>
                 <p className="text-2xl font-bold">
-                  {(mockAgents.reduce((sum, agent) => sum + agent.redemptionRate, 0) / mockAgents.length).toFixed(1)}%
+                  {(filteredAgents.reduce((sum, agent) => sum + agent.redemptionRate, 0) / filteredAgents.length || 0).toFixed(1)}%
                 </p>
               </div>
             </div>
@@ -106,7 +133,7 @@ export function AgentMonitoring() {
               <div>
                 <h3 className="font-semibold">Active Agents</h3>
                 <p className="text-2xl font-bold">
-                  {mockAgents.filter(a => a.status === "active").length}
+                  {filteredAgents.filter(a => a.status === "active").length}
                 </p>
               </div>
             </div>
@@ -117,7 +144,7 @@ export function AgentMonitoring() {
               <div>
                 <h3 className="font-semibold">Total Sales</h3>
                 <p className="text-2xl font-bold">
-                  ₹{mockAgents.reduce((sum, agent) => sum + agent.totalSales, 0).toLocaleString()}
+                  ₹{filteredAgents.reduce((sum, agent) => sum + agent.totalSales, 0).toLocaleString()}
                 </p>
               </div>
             </div>
@@ -138,7 +165,7 @@ export function AgentMonitoring() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {mockAgents.map((agent) => (
+              {filteredAgents.map((agent) => (
                 <TableRow key={agent.id}>
                   <TableCell className="font-medium">{agent.name}</TableCell>
                   <TableCell>{agent.area}</TableCell>

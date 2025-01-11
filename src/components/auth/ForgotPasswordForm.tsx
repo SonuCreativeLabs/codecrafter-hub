@@ -1,19 +1,20 @@
 import { useState } from "react";
-import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Lock, ArrowRight, Loader2 } from "lucide-react";
+import { Mail, Lock, ArrowRight, Loader2, Phone } from "lucide-react";
 
 export function ForgotPasswordForm({ onBack }: { onBack: () => void }) {
-  const [step, setStep] = useState<"email" | "code" | "reset">("email");
-  const [email, setEmail] = useState("");
+  const [step, setStep] = useState<"identifier" | "code" | "reset">("identifier");
+  const [identifier, setIdentifier] = useState("");
   const [code, setCode] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+
+  const isEmail = (value: string) => value.includes("@");
 
   const handleSendCode = async () => {
     setLoading(true);
@@ -23,7 +24,7 @@ export function ForgotPasswordForm({ onBack }: { onBack: () => void }) {
     setStep("code");
     toast({
       title: "Code Sent",
-      description: "Check your email for the reset code."
+      description: `Check your ${isEmail(identifier) ? "email" : "phone"} for the reset code`
     });
   };
 
@@ -55,79 +56,85 @@ export function ForgotPasswordForm({ onBack }: { onBack: () => void }) {
   };
 
   return (
-    <div className="animate-in fade-in slide-in-from-right">
-      <Button 
-        variant="ghost" 
-        className="mb-6 text-muted-foreground hover:text-primary transition-colors" 
-        onClick={onBack}
-      >
-        <ArrowRight className="mr-2 h-4 w-4 rotate-180" />
-        Back to Login
-      </Button>
+    <div className="space-y-6 p-8">
+      {/* App Name */}
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-bold">
+          <span className="text-gray-900">Code</span>
+          <span className="text-blue-500">Crafter</span>
+        </h2>
+        <p className="text-gray-500 mt-2">Reset your password</p>
+      </div>
 
-      <div className="space-y-6">
-        <div className="text-center space-y-2">
-          <h2 className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            Reset Password
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            {step === "email" && "Enter your email to receive a reset code"}
-            {step === "code" && "Enter the code sent to your email"}
-            {step === "reset" && "Create a new password"}
-          </p>
-        </div>
-
-        {step === "email" && (
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">Email Address</Label>
-              <div className="relative group">
-                <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground transition-colors group-hover:text-primary" />
-                <Input
-                  type="email"
-                  placeholder="Enter your email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="pl-9 h-12 bg-white/50 dark:bg-gray-950/50 border-white/20 backdrop-blur-sm transition-all hover:bg-white/60 dark:hover:bg-gray-950/60 focus:bg-white/80 dark:focus:bg-gray-950/80"
-                />
-              </div>
-            </div>
-
-            <Button
-              onClick={handleSendCode}
-              disabled={loading || !email}
-              className="w-full h-12 bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity"
-            >
-              {loading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+      {step === "identifier" && (
+        <form onSubmit={handleSendCode} className="space-y-4">
+          <div className="space-y-2">
+            <Label className="text-sm font-medium text-gray-700">Email or Phone Number</Label>
+            <div className="relative group">
+              {isEmail(identifier) ? (
+                <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400 transition-colors group-hover:text-blue-500" />
               ) : (
-                <>
-                  Send Reset Code
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </>
+                <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400 transition-colors group-hover:text-blue-500" />
               )}
-            </Button>
-          </div>
-        )}
-
-        {step === "code" && (
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">Verification Code</Label>
               <Input
-                type="text"
-                placeholder="Enter 6-digit code"
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
-                maxLength={6}
-                className="h-12 bg-white/50 dark:bg-gray-950/50 border-white/20 backdrop-blur-sm text-center text-lg tracking-widest"
+                type={isEmail(identifier) ? "email" : "tel"}
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
+                className="pl-9 h-12 w-full bg-white/50 border-white/20 backdrop-blur-sm transition-all hover:bg-white/60 focus:bg-white/80 rounded-xl"
+                placeholder="Enter email or phone number"
+                required
               />
             </div>
+          </div>
+
+          <Button
+            type="submit"
+            className="w-full h-12 bg-gradient-to-r from-blue-900 to-blue-500 hover:opacity-90 transition-all rounded-xl text-white font-medium mt-4"
+            disabled={loading}
+          >
+            {loading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <>
+                Send Code
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </>
+            )}
+          </Button>
+
+          <Button
+            type="button"
+            variant="ghost"
+            className="w-full text-sm text-gray-600 hover:text-blue-500 transition-colors"
+            onClick={onBack}
+          >
+            Back to Login
+          </Button>
+        </form>
+      )}
+
+      {step === "code" && (
+        <div className="space-y-6">
+          <div className="text-center space-y-2">
+            <h3 className="text-lg font-semibold text-gray-900">Enter Verification Code</h3>
+            <p className="text-sm text-gray-500">
+              Please enter the verification code sent to your {isEmail(identifier) ? "email" : "phone"}
+            </p>
+          </div>
+
+          <div className="space-y-4">
+            <Input
+              type="text"
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              maxLength={6}
+              className="h-12 w-full text-lg bg-white/50 border-white/20 backdrop-blur-sm transition-all hover:bg-white/60 focus:bg-white/80 rounded-xl text-center"
+            />
 
             <Button
               onClick={handleVerifyCode}
               disabled={loading || code.length !== 6}
-              className="w-full h-12 bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity"
+              className="w-full h-12 bg-gradient-to-r from-blue-900 to-blue-500 hover:opacity-90 transition-all rounded-xl text-white font-medium"
             >
               {loading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -139,52 +146,57 @@ export function ForgotPasswordForm({ onBack }: { onBack: () => void }) {
               )}
             </Button>
           </div>
-        )}
+        </div>
+      )}
 
-        {step === "reset" && (
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">New Password</Label>
-              <div className="relative group">
-                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground transition-colors group-hover:text-primary" />
-                <Input
-                  type="password"
-                  placeholder="Enter new password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  className="pl-9 h-12 bg-white/50 dark:bg-gray-950/50 border-white/20 backdrop-blur-sm transition-all hover:bg-white/60 dark:hover:bg-gray-950/60 focus:bg-white/80 dark:focus:bg-gray-950/80"
-                />
-              </div>
+      {step === "reset" && (
+        <form onSubmit={handleResetPassword} className="space-y-4">
+          <div className="space-y-2">
+            <Label className="text-sm font-medium text-gray-700">New Password</Label>
+            <div className="relative group">
+              <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400 transition-colors group-hover:text-blue-500" />
+              <Input
+                type="password"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                className="pl-9 h-12 w-full bg-white/50 border-white/20 backdrop-blur-sm transition-all hover:bg-white/60 focus:bg-white/80 rounded-xl"
+                placeholder="Enter new password"
+                required
+              />
             </div>
-
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">Confirm Password</Label>
-              <div className="relative group">
-                <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground transition-colors group-hover:text-primary" />
-                <Input
-                  type="password"
-                  placeholder="Confirm new password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  className="pl-9 h-12 bg-white/50 dark:bg-gray-950/50 border-white/20 backdrop-blur-sm transition-all hover:bg-white/60 dark:hover:bg-gray-950/60 focus:bg-white/80 dark:focus:bg-gray-950/80"
-                />
-              </div>
-            </div>
-
-            <Button
-              onClick={handleResetPassword}
-              disabled={loading || !newPassword || !confirmPassword}
-              className="w-full h-12 bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity"
-            >
-              {loading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                "Reset Password"
-              )}
-            </Button>
           </div>
-        )}
-      </div>
+
+          <div className="space-y-2">
+            <Label className="text-sm font-medium text-gray-700">Confirm Password</Label>
+            <div className="relative group">
+              <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400 transition-colors group-hover:text-blue-500" />
+              <Input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="pl-9 h-12 w-full bg-white/50 border-white/20 backdrop-blur-sm transition-all hover:bg-white/60 focus:bg-white/80 rounded-xl"
+                placeholder="Confirm new password"
+                required
+              />
+            </div>
+          </div>
+
+          <Button
+            type="submit"
+            className="w-full h-12 bg-gradient-to-r from-blue-900 to-blue-500 hover:opacity-90 transition-all rounded-xl text-white font-medium mt-4"
+            disabled={loading}
+          >
+            {loading ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <>
+                Reset Password
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </>
+            )}
+          </Button>
+        </form>
+      )}
     </div>
   );
 }

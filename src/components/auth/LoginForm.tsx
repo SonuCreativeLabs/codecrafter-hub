@@ -96,22 +96,31 @@ export function LoginForm({ onForgotPassword }: { onForgotPassword: () => void }
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-8">
+      {/* App Name */}
+      <div className="text-center mb-8">
+        <h2 className="text-3xl font-bold">
+          <span className="text-gray-900">Code</span>
+          <span className="text-blue-500">Crafter</span>
+        </h2>
+        <p className="text-gray-500 mt-2">Welcome back</p>
+      </div>
+
       {!showOTP ? (
         <form onSubmit={handleLogin} className="space-y-4">
           <div className="space-y-2">
-            <Label className="text-sm font-medium">Email or Phone Number</Label>
+            <Label className="text-sm font-medium text-gray-700">Email or Phone Number</Label>
             <div className="relative group">
               {isEmail(identifier) ? (
-                <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground transition-colors group-hover:text-primary" />
+                <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400 transition-colors group-hover:text-blue-500" />
               ) : (
-                <Phone className="absolute left-3 top-3 h-4 w-4 text-muted-foreground transition-colors group-hover:text-primary" />
+                <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400 transition-colors group-hover:text-blue-500" />
               )}
               <Input
                 type={isEmail(identifier) ? "email" : "tel"}
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
-                className="pl-9 h-12 bg-white/50 dark:bg-gray-950/50 border-white/20 backdrop-blur-sm transition-all hover:bg-white/60 dark:hover:bg-gray-950/60 focus:bg-white/80 dark:focus:bg-gray-950/80"
+                className="pl-9 h-12 w-full bg-white/50 border-white/20 backdrop-blur-sm transition-all hover:bg-white/60 focus:bg-white/80 rounded-xl"
                 placeholder="Enter email or phone number"
                 required
               />
@@ -119,14 +128,14 @@ export function LoginForm({ onForgotPassword }: { onForgotPassword: () => void }
           </div>
 
           <div className="space-y-2">
-            <Label className="text-sm font-medium">Password</Label>
+            <Label className="text-sm font-medium text-gray-700">Password</Label>
             <div className="relative group">
-              <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground transition-colors group-hover:text-primary" />
+              <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400 transition-colors group-hover:text-blue-500" />
               <Input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="pl-9 h-12 bg-white/50 dark:bg-gray-950/50 border-white/20 backdrop-blur-sm transition-all hover:bg-white/60 dark:hover:bg-gray-950/60 focus:bg-white/80 dark:focus:bg-gray-950/80"
+                className="pl-9 h-12 w-full bg-white/50 border-white/20 backdrop-blur-sm transition-all hover:bg-white/60 focus:bg-white/80 rounded-xl"
                 placeholder="Enter your password"
                 required
               />
@@ -135,7 +144,7 @@ export function LoginForm({ onForgotPassword }: { onForgotPassword: () => void }
 
           <Button
             type="submit"
-            className="w-full h-12 bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity"
+            className="w-full h-12 bg-gradient-to-r from-blue-900 to-blue-500 hover:opacity-90 transition-all rounded-xl text-white font-medium mt-4"
             disabled={isLoading}
           >
             {isLoading ? (
@@ -150,8 +159,8 @@ export function LoginForm({ onForgotPassword }: { onForgotPassword: () => void }
 
           <Button
             type="button"
-            variant="link"
-            className="w-full text-sm hover:text-accent transition-colors"
+            variant="ghost"
+            className="w-full text-sm text-gray-600 hover:text-blue-500 transition-colors"
             onClick={onForgotPassword}
           >
             Forgot Password?
@@ -160,8 +169,8 @@ export function LoginForm({ onForgotPassword }: { onForgotPassword: () => void }
       ) : (
         <div className="space-y-6">
           <div className="text-center space-y-2">
-            <h3 className="text-lg font-semibold">Enter OTP</h3>
-            <p className="text-sm text-muted-foreground">
+            <h3 className="text-lg font-semibold text-gray-900">Enter OTP</h3>
+            <p className="text-sm text-gray-500">
               Please enter the verification code sent to your {isEmail(identifier) ? "email" : "phone"}
             </p>
           </div>
@@ -177,7 +186,8 @@ export function LoginForm({ onForgotPassword }: { onForgotPassword: () => void }
                     <InputOTPSlot
                       key={idx}
                       {...slot}
-                      className="h-12 w-12 text-lg bg-white/50 dark:bg-gray-950/50 border-white/20 backdrop-blur-sm transition-all"
+                      index={idx}
+                      className="h-12 w-12 text-lg bg-white/50 border-white/20 backdrop-blur-sm transition-all hover:bg-white/60 focus:bg-white/80 rounded-xl"
                     />
                   ))}
                 </InputOTPGroup>
@@ -187,7 +197,7 @@ export function LoginForm({ onForgotPassword }: { onForgotPassword: () => void }
             <Button
               onClick={verifyOTP}
               disabled={isLoading || otp.length !== 6}
-              className="w-full h-12 bg-gradient-to-r from-primary to-accent hover:opacity-90 transition-opacity"
+              className="w-full h-12 bg-gradient-to-r from-blue-900 to-blue-500 hover:opacity-90 transition-all rounded-xl text-white font-medium"
             >
               {isLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />

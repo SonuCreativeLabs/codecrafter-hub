@@ -76,7 +76,7 @@ const AgentDashboard = () => {
             </div>
           </div>
           <div className="flex items-center gap-4">
-            <NotificationBell userId="12345" />
+            <NotificationBell userId="12345" userRole="agent" />
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="relative h-10 w-10 rounded-full ring-2 ring-primary/20 hover:ring-primary/40 transition-all">

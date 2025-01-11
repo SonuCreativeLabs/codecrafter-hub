@@ -131,7 +131,7 @@ const AdminDashboard = () => {
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold">Admin Dashboard</h1>
           <div className="flex items-center space-x-4">
-            <NotificationBell userId="admin" />
+            <NotificationBell userId="admin" userRole="admin" />
             <Button 
               onClick={handleCreateCampaign} 
               className="flex items-center space-x-2 hover:shadow-lg transition-all duration-300"
