@@ -56,56 +56,57 @@ export function ForgotPasswordForm({ onBack }: { onBack: () => void }) {
   };
 
   return (
-    <div className="space-y-6 p-8">
+    <div className="space-y-8 p-8">
       {/* App Name */}
       <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold">
-          <span className="text-gray-900">Code</span>
-          <span className="text-blue-500">Crafter</span>
+        <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-900 to-blue-500 bg-clip-text text-transparent">
+          CodeCrafter
         </h2>
-        <p className="text-gray-500 mt-2">Reset your password</p>
+        <p className="text-base font-medium text-blue-500">Reset your password</p>
       </div>
 
       {step === "identifier" && (
-        <form onSubmit={handleSendCode} className="space-y-4">
-          <div className="space-y-2">
-            <Label className="text-sm font-medium text-gray-700">Email or Phone Number</Label>
+        <form onSubmit={handleSendCode} className="space-y-6">
+          <div className="space-y-3">
+            <Label className="text-lg font-bold text-gray-800">Email or Phone Number</Label>
             <div className="relative group">
               {isEmail(identifier) ? (
-                <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400 transition-colors group-hover:text-blue-500" />
+                <Mail className="absolute left-3 top-3.5 h-5 w-5 text-gray-500 transition-colors group-hover:text-blue-500 z-10" />
               ) : (
-                <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400 transition-colors group-hover:text-blue-500" />
+                <Phone className="absolute left-3 top-3.5 h-5 w-5 text-gray-500 transition-colors group-hover:text-blue-500 z-10" />
               )}
               <Input
                 type={isEmail(identifier) ? "email" : "tel"}
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
-                className="pl-9 h-12 w-full bg-white/50 border-white/20 backdrop-blur-sm transition-all hover:bg-white/60 focus:bg-white/80 rounded-xl"
+                className="pl-10 h-12 w-full bg-white/50 border-gray-200 backdrop-blur-sm transition-all hover:bg-white/60 focus:bg-white/80 rounded-xl text-base font-medium"
                 placeholder="Enter email or phone number"
                 required
               />
             </div>
           </div>
 
-          <Button
-            type="submit"
-            className="w-full h-12 bg-gradient-to-r from-blue-900 to-blue-500 hover:opacity-90 transition-all rounded-xl text-white font-medium mt-4"
-            disabled={loading}
-          >
-            {loading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <>
-                Send Code
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </>
-            )}
-          </Button>
+          <div className="pt-4">
+            <Button
+              type="submit"
+              className="w-full h-12 bg-gradient-to-r from-blue-900 to-blue-500 hover:opacity-90 transition-all rounded-xl text-white text-base font-bold"
+              disabled={loading}
+            >
+              {loading ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                <>
+                  Send Code
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </>
+              )}
+            </Button>
+          </div>
 
           <Button
             type="button"
             variant="ghost"
-            className="w-full text-sm text-gray-600 hover:text-blue-500 transition-colors"
+            className="w-full text-base font-semibold text-gray-600 hover:text-blue-500 transition-colors"
             onClick={onBack}
           >
             Back to Login
@@ -116,8 +117,8 @@ export function ForgotPasswordForm({ onBack }: { onBack: () => void }) {
       {step === "code" && (
         <div className="space-y-6">
           <div className="text-center space-y-2">
-            <h3 className="text-lg font-semibold text-gray-900">Enter Verification Code</h3>
-            <p className="text-sm text-gray-500">
+            <h3 className="text-lg font-bold text-gray-800">Enter Verification Code</h3>
+            <p className="text-base text-gray-600">
               Please enter the verification code sent to your {isEmail(identifier) ? "email" : "phone"}
             </p>
           </div>
@@ -128,20 +129,20 @@ export function ForgotPasswordForm({ onBack }: { onBack: () => void }) {
               value={code}
               onChange={(e) => setCode(e.target.value)}
               maxLength={6}
-              className="h-12 w-full text-lg bg-white/50 border-white/20 backdrop-blur-sm transition-all hover:bg-white/60 focus:bg-white/80 rounded-xl text-center"
+              className="h-12 w-full text-lg bg-white/50 border-gray-200 backdrop-blur-sm transition-all hover:bg-white/60 focus:bg-white/80 rounded-xl text-center font-medium"
             />
 
             <Button
               onClick={handleVerifyCode}
               disabled={loading || code.length !== 6}
-              className="w-full h-12 bg-gradient-to-r from-blue-900 to-blue-500 hover:opacity-90 transition-all rounded-xl text-white font-medium"
+              className="w-full h-12 bg-gradient-to-r from-blue-900 to-blue-500 hover:opacity-90 transition-all rounded-xl text-white text-base font-bold"
             >
               {loading ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
+                <Loader2 className="h-5 w-5 animate-spin" />
               ) : (
                 <>
                   Verify Code
-                  <ArrowRight className="ml-2 h-4 w-4" />
+                  <ArrowRight className="ml-2 h-5 w-5" />
                 </>
               )}
             </Button>
@@ -150,51 +151,53 @@ export function ForgotPasswordForm({ onBack }: { onBack: () => void }) {
       )}
 
       {step === "reset" && (
-        <form onSubmit={handleResetPassword} className="space-y-4">
-          <div className="space-y-2">
-            <Label className="text-sm font-medium text-gray-700">New Password</Label>
+        <form onSubmit={handleResetPassword} className="space-y-6">
+          <div className="space-y-3">
+            <Label className="text-lg font-bold text-gray-800">New Password</Label>
             <div className="relative group">
-              <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400 transition-colors group-hover:text-blue-500" />
+              <Lock className="absolute left-3 top-3.5 h-5 w-5 text-gray-500 transition-colors group-hover:text-blue-500 z-10" />
               <Input
                 type="password"
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
-                className="pl-9 h-12 w-full bg-white/50 border-white/20 backdrop-blur-sm transition-all hover:bg-white/60 focus:bg-white/80 rounded-xl"
+                className="pl-10 h-12 w-full bg-white/50 border-gray-200 backdrop-blur-sm transition-all hover:bg-white/60 focus:bg-white/80 rounded-xl text-base font-medium"
                 placeholder="Enter new password"
                 required
               />
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label className="text-sm font-medium text-gray-700">Confirm Password</Label>
+          <div className="space-y-3">
+            <Label className="text-lg font-bold text-gray-800">Confirm Password</Label>
             <div className="relative group">
-              <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400 transition-colors group-hover:text-blue-500" />
+              <Lock className="absolute left-3 top-3.5 h-5 w-5 text-gray-500 transition-colors group-hover:text-blue-500 z-10" />
               <Input
                 type="password"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="pl-9 h-12 w-full bg-white/50 border-white/20 backdrop-blur-sm transition-all hover:bg-white/60 focus:bg-white/80 rounded-xl"
+                className="pl-10 h-12 w-full bg-white/50 border-gray-200 backdrop-blur-sm transition-all hover:bg-white/60 focus:bg-white/80 rounded-xl text-base font-medium"
                 placeholder="Confirm new password"
                 required
               />
             </div>
           </div>
 
-          <Button
-            type="submit"
-            className="w-full h-12 bg-gradient-to-r from-blue-900 to-blue-500 hover:opacity-90 transition-all rounded-xl text-white font-medium mt-4"
-            disabled={loading}
-          >
-            {loading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <>
-                Reset Password
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </>
-            )}
-          </Button>
+          <div className="pt-4">
+            <Button
+              type="submit"
+              className="w-full h-12 bg-gradient-to-r from-blue-900 to-blue-500 hover:opacity-90 transition-all rounded-xl text-white text-base font-bold"
+              disabled={loading}
+            >
+              {loading ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                <>
+                  Reset Password
+                  <ArrowRight className="ml-2 h-5 w-5" />
+                </>
+              )}
+            </Button>
+          </div>
         </form>
       )}
     </div>
